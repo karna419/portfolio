@@ -22,6 +22,15 @@ const year = new Date().getFullYear();
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#e9edf1" />
+    <!-- Set the theme before first paint so there is no flash of the wrong one. -->
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem('theme');
+        const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', dark);
+        document.querySelector('meta[name="theme-color"]').content = dark ? '#0d1218' : '#e9edf1';
+      })();
+    </script>
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -29,6 +38,7 @@ const year = new Date().getFullYear();
     <meta name="twitter:card" content="summary" />
   </head>
   <body class="min-h-dvh flex flex-col">
+    <canvas id="neural-bg" aria-hidden="true" class="fixed inset-0 -z-10 h-full w-full pointer-events-none"></canvas>
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 bg-ink text-paper px-3 py-2 rounded">Skip to content</a>
     <header class="mx-auto w-full max-w-6xl px-5 sm:px-8 pt-6 flex items-center justify-between text-[0.95rem]">
       <a href="/" class="font-display font-semibold tracking-tight">{site.name}</a>
@@ -41,11 +51,24 @@ const year = new Date().getFullYear();
           {site.links.map((l) => (
             <li>
               <a href={l.href} rel="me" aria-label={l.label} title={l.label}
-                 class="grid place-items-center size-9 rounded-full text-ink/80 hover:text-ink hover:bg-marigold transition-colors">
+                 class="grid place-items-center size-9 rounded-full text-ink/80 hover:text-night hover:bg-marigold transition-colors">
                 <Icon name={l.icon} class="size-[1.1rem]" />
               </a>
             </li>
           ))}
+          <li class="ml-1 border-l border-rule pl-2 sm:pl-3">
+            <button id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Toggle dark mode"
+                    class="grid place-items-center size-9 rounded-full text-ink/80 hover:text-night hover:bg-marigold transition-colors cursor-pointer">
+              <!-- Moon in light mode, sun in dark mode. -->
+              <svg class="size-[1.1rem] dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+              </svg>
+              <svg class="size-[1.1rem] hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+              </svg>
+            </button>
+          </li>
         </ul>
       </div>
     </header>
@@ -55,5 +78,37 @@ const year = new Date().getFullYear();
     <footer class="mx-auto w-full max-w-6xl px-5 sm:px-8 py-10 text-sm text-muted">
       © {year} {site.name}. Built with Astro.
     </footer>
+    <script>
+      const root = document.documentElement;
+      const toggle = document.getElementById('theme-toggle')!;
+      const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')!;
+      const sync = () => {
+        const dark = root.classList.contains('dark');
+        toggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+        meta.content = dark ? '#0d1218' : '#e9edf1';
+      };
+      const setTheme = (dark: boolean) => {
+        root.classList.add('theme-switching');
+        root.classList.toggle('dark', dark);
+        sync();
+        setTimeout(() => root.classList.remove('theme-switching'), 300);
+      };
+      sync();
+      toggle.addEventListener('click', () => {
+        const dark = !root.classList.contains('dark');
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+        setTheme(dark);
+      });
+      // Follow the system setting until the visitor picks one themselves.
+      matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) setTheme(e.matches);
+      });
+
+      // three.js is loaded after the page is up, so it never delays the content.
+      const canvas = document.getElementById('neural-bg') as HTMLCanvasElement;
+      const load = () => import('../scripts/neural-bg').then((m) => m.start(canvas));
+      if ('requestIdleCallback' in window) requestIdleCallback(load, { timeout: 1500 });
+      else setTimeout(load, 300);
+    </script>
   </body>
 </html>

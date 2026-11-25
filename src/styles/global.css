@@ -2,16 +2,34 @@
 @import "@fontsource-variable/bricolage-grotesque";
 @import "@fontsource-variable/instrument-sans";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
+  /* These two never flip with the theme: used for the contact panel and text on marigold. */
+  --color-night: #18212c;
+  --color-snow: #e9edf1;
+
   --color-paper: #e9edf1;
   --color-ink: #18212c;
   --color-muted: #55616e;
   --color-rule: #c6cfd8;
   --color-marigold: #e39b2d;
   --color-marigold-deep: #8a5200;
+  --color-code: #dde3e9;
 
   --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Dark theme: the same tokens, swapped. Toggled by the `dark` class on <html>. */
+.dark {
+  color-scheme: dark;
+  --color-paper: #0d1218;
+  --color-ink: #e4e9ee;
+  --color-muted: #95a1ae;
+  --color-rule: #283340;
+  --color-marigold-deep: #f0b45a;
+  --color-code: #1c2530;
 }
 
 @layer base {
@@ -24,7 +42,7 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  ::selection { background: var(--color-marigold); color: var(--color-ink); }
+  ::selection { background: var(--color-marigold); color: var(--color-night); }
   :focus-visible {
     outline: 3px solid var(--color-marigold);
     outline-offset: 3px;
@@ -58,11 +76,18 @@
   .prose-work ul { list-style: disc; padding-left: 1.25em; }
   .prose-work ol { list-style: decimal; padding-left: 1.25em; }
   .prose-work img { border-radius: 10px; border: 1px solid var(--color-rule); }
-  .prose-work code { font-size: 0.9em; background: #dde3e9; padding: 0.1em 0.35em; border-radius: 4px; }
+  .prose-work code { font-size: 0.9em; background: var(--color-code); padding: 0.1em 0.35em; border-radius: 4px; }
   .prose-work pre { background: var(--color-ink); color: var(--color-paper); padding: 1rem 1.25rem; border-radius: 10px; overflow-x: auto; }
   .prose-work pre code { background: none; padding: 0; }
   .prose-work blockquote { border-left: 4px solid var(--color-marigold); padding-left: 1rem; color: var(--color-muted); }
 }
+
+/* Neural network background: fades in once three.js has drawn its first frame. */
+#neural-bg { opacity: 0; transition: opacity 1.2s ease; }
+#neural-bg.is-ready { opacity: 1; }
+
+/* Smooth colour change when switching theme (added only around the switch). */
+.theme-switching, .theme-switching * { transition: background-color 250ms ease, color 250ms ease, border-color 250ms ease !important; }
 
 /* The one moment of motion: the marigold bar under the name draws in on load. */
 @keyframes draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
@@ -70,4 +95,5 @@
 @media (prefers-reduced-motion: reduce) {
   .name-bar { animation: none; }
   .link { transition: none; }
+  #neural-bg { transition: none; }
 }

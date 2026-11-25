@@ -66,21 +66,21 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
   </section>
 
   <section id="contact" class="mx-auto max-w-6xl px-5 sm:px-8 py-16 scroll-mt-8">
-    <div class="rounded-2xl bg-ink text-paper px-6 sm:px-12 py-12 sm:py-16">
+    <div class="rounded-2xl bg-night text-snow dark:ring-1 dark:ring-rule px-6 sm:px-12 py-12 sm:py-16">
       <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight max-w-[18ch]">Have something you want built?</h2>
-      <p class="mt-4 max-w-[55ch] text-paper/75">Tell me what you're working on. I usually reply within a couple of days.</p>
+      <p class="mt-4 max-w-[55ch] text-snow/75">Tell me what you're working on. I usually reply within a couple of days.</p>
       <div class="mt-8 flex flex-wrap gap-3">
         {site.email && (
-          <a href={`mailto:${site.email}`} class="inline-block rounded-full bg-marigold text-ink font-semibold px-6 py-3 hover:bg-paper transition-colors">Email me</a>
+          <a href={`mailto:${site.email}`} class="inline-block rounded-full bg-marigold text-night font-semibold px-6 py-3 hover:bg-snow transition-colors">Email me</a>
         )}
         {hire.map((l) => (
-          <a href={l.href} class="inline-flex items-center gap-2 rounded-full border border-paper/30 px-5 py-3 font-semibold hover:bg-paper hover:text-ink transition-colors">
+          <a href={l.href} class="inline-flex items-center gap-2 rounded-full border border-snow/30 px-5 py-3 font-semibold hover:bg-snow hover:text-night transition-colors">
             <Icon name={l.icon} class="size-4" />
             Hire me on {l.label}
           </a>
         ))}
       </div>
-      {site.email && <p class="mt-5 text-sm text-paper/60">{site.email}</p>}
+      {site.email && <p class="mt-5 text-sm text-snow/60">{site.email}</p>}
     </div>
   </section>
 </Base>

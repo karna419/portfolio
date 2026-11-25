@@ -1,6 +1,6 @@
 # karunagaran — portfolio
 
-Personal site built with [Astro](https://astro.build) and Tailwind CSS. Static output, no JavaScript shipped.
+Personal site built with [Astro](https://astro.build) and Tailwind CSS. Static output. The only JavaScript is the dark-mode toggle and the three.js neural-network background (`src/scripts/neural-bg.ts`), which loads after the page.
 
 ## Run it
 
