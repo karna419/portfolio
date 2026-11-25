@@ -1,0 +1,40 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getWork } from '../../lib';
+
+export async function getStaticPaths() {
+  const work = await getWork();
+  return work.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+<Base title={d.title} description={d.summary}>
+  <article class="mx-auto max-w-6xl px-5 sm:px-8 pt-16 sm:pt-24 pb-16">
+    <a href="/#work" class="link text-sm">Back to all work</a>
+    <h1 class="mt-6 font-bold tracking-[-0.03em] text-[clamp(2.5rem,7vw,5rem)] max-w-[20ch]">{d.title}</h1>
+    <p class="mt-5 text-xl sm:text-2xl leading-snug max-w-[44ch] text-balance">{d.summary}</p>
+
+    <dl class="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 border-y border-rule py-6 text-[0.95rem]">
+      <div><dt class="text-muted">Year</dt><dd class="tabular-nums">{d.year}</dd></div>
+      {d.role && <div><dt class="text-muted">Role</dt><dd>{d.role}</dd></div>}
+      {d.stack.length > 0 && <div><dt class="text-muted">Built with</dt><dd>{d.stack.join(', ')}</dd></div>}
+      {(d.url || d.repo) && (
+        <div>
+          <dt class="text-muted">Links</dt>
+          <dd class="flex flex-wrap gap-x-4">
+            {d.url && <a class="link" href={d.url}>Live site</a>}
+            {d.repo && <a class="link" href={d.repo}>Code</a>}
+          </dd>
+        </div>
+      )}
+    </dl>
+
+    <div class="prose-work mt-12">
+      <Content />
+    </div>
+  </article>
+</Base>

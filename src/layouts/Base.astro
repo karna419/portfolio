@@ -1,0 +1,46 @@
+---
+import '../styles/global.css';
+import { site } from '../site';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title, description = site.intro } = Astro.props;
+const fullTitle = title ? `${title} — ${site.name}` : site.name;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const year = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#e9edf1" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+  </head>
+  <body class="min-h-dvh flex flex-col">
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 bg-ink text-paper px-3 py-2 rounded">Skip to content</a>
+    <header class="mx-auto w-full max-w-6xl px-5 sm:px-8 pt-6 flex items-center justify-between text-[0.95rem]">
+      <a href="/" class="font-display font-semibold tracking-tight">{site.name}</a>
+      <nav class="flex gap-5">
+        <a href="/#work" class="link">Work</a>
+        <a href="/#contact" class="link">Contact</a>
+      </nav>
+    </header>
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+    <footer class="mx-auto w-full max-w-6xl px-5 sm:px-8 py-10 text-sm text-muted">
+      © {year} {site.name}. Built with Astro.
+    </footer>
+  </body>
+</html>
