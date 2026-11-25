@@ -1,38 +1,42 @@
 @import "tailwindcss";
-@import "@fontsource-variable/bricolage-grotesque";
-@import "@fontsource-variable/instrument-sans";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* The site is built like a native iOS app: a soft wallpaper that stays put, and panes of
+   translucent glass that the content sits on. Type is the system font, so on Apple devices
+   it is set in San Francisco. Amber is the app's tint colour. */
 @theme {
-  /* These two never flip with the theme: used for the contact panel and text on marigold. */
-  --color-night: #18212c;
-  --color-snow: #e9edf1;
+  /* Snow never flips with the theme: it is the text colour on the dark contact pane. */
+  --color-snow: #f5f6fa;
+  /* Night is the dark contact pane and the text on amber. */
+  --color-night: #0d1222;
 
-  --color-paper: #e9edf1;
-  --color-ink: #18212c;
-  --color-muted: #55616e;
-  --color-rule: #c6cfd8;
-  --color-marigold: #e39b2d;
-  --color-marigold-deep: #8a5200;
-  --color-code: #dde3e9;
-  /* The "available" dot. The one green on the site. */
-  --color-go: #1c9a56;
+  --color-paper: #eef2f9;
+  --color-ink: #0b0d14;
+  --color-muted: #545a6b;
+  --color-rule: #3c3c4329;
+  --color-marigold: #ff9500;
+  --color-marigold-deep: #a85a00;
+  --color-code: #0b0d1412;
+  /* The "available" dot. */
+  --color-go: #1fa64a;
 
-  --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
-/* Dark theme: the same tokens, swapped. Toggled by the `dark` class on <html>. */
+/* Dark appearance: the same tokens after dark. Toggled by the `dark` class on <html>. */
 .dark {
   color-scheme: dark;
-  --color-paper: #0d1218;
-  --color-ink: #e4e9ee;
-  --color-muted: #95a1ae;
-  --color-rule: #283340;
-  --color-marigold-deep: #f0b45a;
-  --color-code: #1c2530;
-  --color-go: #3ecf7c;
+  --color-paper: #05070f;
+  --color-ink: #f5f6fa;
+  --color-muted: #a6abba;
+  --color-rule: #ffffff24;
+  --color-marigold: #ff9f0a;
+  --color-marigold-deep: #ffb340;
+  --color-code: #ffffff17;
+  --color-go: #30d158;
 }
 
 @layer base {
@@ -41,7 +45,7 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: 1.0625rem;
-    line-height: 1.6;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -49,13 +53,118 @@
   :focus-visible {
     outline: 3px solid var(--color-marigold);
     outline-offset: 3px;
-    border-radius: 2px;
+    border-radius: 6px;
   }
-  h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; }
+  h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; letter-spacing: -0.022em; }
+}
+
+/* ---- Wallpaper ----------------------------------------------------------------------
+   Fixed behind everything: the page scrolls over it. Four big soft colours drift slowly,
+   which is what gives the glass something to bend. */
+#wallpaper {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(160deg, #e9f0fb 0%, #f3eef6 55%, #fbefe4 100%);
+}
+#wallpaper i {
+  position: absolute;
+  width: 62vmax;
+  height: 62vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side, var(--c), transparent);
+  opacity: var(--o, 0.9);
+  animation: drift var(--t, 44s) ease-in-out infinite alternate;
+  will-change: transform;
+}
+#wallpaper i:nth-child(1) { --c: #8fc4ff; left: -14vmax; top: -22vmax; --dx: 14vmax; --dy: 10vmax; }
+#wallpaper i:nth-child(2) { --c: #ffb1cf; right: -18vmax; top: -6vmax; --dx: -12vmax; --dy: 14vmax; --t: 52s; }
+#wallpaper i:nth-child(3) { --c: #ffd392; left: 18vmax; bottom: -30vmax; --dx: 10vmax; --dy: -12vmax; --t: 60s; }
+#wallpaper i:nth-child(4) { --c: #b9b0ff; right: 4vmax; bottom: -26vmax; --dx: -16vmax; --dy: -8vmax; --t: 48s; }
+.dark #wallpaper { background: linear-gradient(160deg, #04060d 0%, #080b18 55%, #0d0a17 100%); }
+.dark #wallpaper i { --o: 0.55; }
+.dark #wallpaper i:nth-child(1) { --c: #1d55e6; }
+.dark #wallpaper i:nth-child(2) { --c: #b0238f; }
+.dark #wallpaper i:nth-child(3) { --c: #c2590a; }
+.dark #wallpaper i:nth-child(4) { --c: #5a3fe0; }
+@keyframes drift { to { transform: translate(var(--dx), var(--dy)) scale(1.12); } }
+/* A booked call makes the wallpaper swell for a moment (see Booker.astro). */
+#wallpaper.is-burst i { --o: 1; transition: opacity 400ms ease; }
+
+/* ---- Liquid glass ---------------------------------------------------------------------
+   A translucent pane: it blurs and saturates what is behind it, catches a bright edge along
+   the top, and carries a soft highlight that follows the pointer across its surface. */
+@property --lit { syntax: '<number>'; inherits: false; initial-value: 0; }
+.glass {
+  --mx: 50%;
+  --my: 0%;
+  position: relative;
+  background:
+    radial-gradient(22rem circle at var(--mx) var(--my), rgb(255 255 255 / var(--lit)), transparent 62%),
+    linear-gradient(135deg, rgb(255 255 255 / 0.62), rgb(255 255 255 / 0.3));
+  -webkit-backdrop-filter: blur(26px) saturate(190%);
+  backdrop-filter: blur(26px) saturate(190%);
+  border: 1px solid rgb(255 255 255 / 0.6);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.85),
+    inset 0 -1px 0 rgb(255 255 255 / 0.18),
+    0 18px 44px -18px rgb(24 34 72 / 0.32);
+  transition: --lit 350ms ease;
+}
+.glass:hover { --lit: 0.42; }
+.dark .glass {
+  background:
+    radial-gradient(22rem circle at var(--mx) var(--my), rgb(255 255 255 / calc(var(--lit) * 0.3)), transparent 62%),
+    linear-gradient(135deg, rgb(255 255 255 / 0.13), rgb(255 255 255 / 0.045));
+  border-color: rgb(255 255 255 / 0.16);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.24),
+    inset 0 -1px 0 rgb(255 255 255 / 0.04),
+    0 20px 50px -18px rgb(0 0 0 / 0.7);
+}
+/* Smoked glass: the contact pane, dark in both appearances. */
+.glass.glass-dark, .dark .glass.glass-dark {
+  background:
+    radial-gradient(26rem circle at var(--mx) var(--my), rgb(255 255 255 / calc(var(--lit) * 0.22)), transparent 62%),
+    linear-gradient(135deg, rgb(13 18 34 / 0.84), rgb(13 18 34 / 0.7));
+  border-color: rgb(255 255 255 / 0.14);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2), 0 24px 60px -20px rgb(8 12 30 / 0.6);
+}
+.pane { border-radius: 1.75rem; }
+.capsule { border-radius: 999px; }
+
+/* Browsers without backdrop blur, and people who ask for less transparency, get solid panes. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: rgb(255 255 255 / 0.9); }
+  .dark .glass { background: rgb(26 30 46 / 0.94); }
+  .glass.glass-dark, .dark .glass.glass-dark { background: rgb(13 18 34 / 0.97); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass { background: #fff; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .dark .glass { background: #1a1e2e; }
+  .glass.glass-dark, .dark .glass.glass-dark { background: #0d1222; }
 }
 
 @layer components {
-  /* Underlined links: ink text, marigold underline that thickens on hover. */
+  /* Buttons press in slightly, the way they do under a finger. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 3rem;
+    padding-inline: 1.4rem;
+    border-radius: 999px;
+    font-weight: 600;
+    transition: transform 160ms cubic-bezier(.3, 1.6, .5, 1), filter 160ms ease;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-tint { background: var(--color-marigold); color: var(--color-night); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45), 0 10px 24px -10px var(--color-marigold); }
+  .btn-tint:hover { filter: brightness(1.07); }
+
+  /* Underlined links: ink text, amber underline that thickens on hover. */
   .link {
     text-decoration-line: underline;
     text-decoration-color: var(--color-marigold);
@@ -65,10 +174,17 @@
   }
   .link:hover { text-decoration-thickness: 5px; }
 
+  /* A row in a grouped list. */
+  .row { transition: background-color 150ms ease; }
+  .row:hover { background: rgb(255 255 255 / 0.4); }
+  .row:active { background: rgb(255 255 255 / 0.6); }
+  .dark .row:hover { background: rgb(255 255 255 / 0.06); }
+  .dark .row:active { background: rgb(255 255 255 / 0.1); }
+
   /* Long-form case-study text. */
   .prose-work { max-width: 66ch; }
   .prose-work > * + * { margin-top: 1.1em; }
-  .prose-work h2 { font-size: 1.6rem; font-weight: 650; margin-top: 2.2em; }
+  .prose-work h2 { font-size: 1.6rem; font-weight: 700; margin-top: 2.2em; }
   .prose-work h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.8em; }
   .prose-work a {
     text-decoration-line: underline;
@@ -78,25 +194,108 @@
   }
   .prose-work ul { list-style: disc; padding-left: 1.25em; }
   .prose-work ol { list-style: decimal; padding-left: 1.25em; }
-  .prose-work img { border-radius: 10px; border: 1px solid var(--color-rule); }
-  .prose-work code { font-size: 0.9em; background: var(--color-code); padding: 0.1em 0.35em; border-radius: 4px; }
-  .prose-work pre { background: var(--color-ink); color: var(--color-paper); padding: 1rem 1.25rem; border-radius: 10px; overflow-x: auto; }
+  .prose-work img { border-radius: 14px; border: 1px solid var(--color-rule); }
+  .prose-work code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-code); padding: 0.1em 0.35em; border-radius: 6px; }
+  .prose-work pre { background: var(--color-night); color: var(--color-snow); padding: 1rem 1.25rem; border-radius: 14px; overflow-x: auto; }
   .prose-work pre code { background: none; padding: 0; }
   .prose-work blockquote { border-left: 4px solid var(--color-marigold); padding-left: 1rem; color: var(--color-muted); }
 }
 
-/* Neural network background: fades in once three.js has drawn its first frame. */
-#neural-bg { opacity: 0; transition: opacity 1.2s ease; }
-#neural-bg.is-ready { opacity: 1; }
+/* ---- Tab bar --------------------------------------------------------------------------
+   A glass capsule of tabs. A brighter lens of glass slides to whichever section is on
+   screen. On a phone the bar moves to the bottom of the screen, where a thumb can reach it. */
+.tabs { display: flex; align-items: center; height: 2.75rem; padding: 0.25rem; white-space: nowrap; }
+.tabs a {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  height: 2.25rem;
+  padding-inline: 0.95rem;
+  border-radius: 999px;
+  font-size: 0.94rem;
+  font-weight: 550;
+  transition: transform 160ms ease;
+}
+.tabs a:active { transform: scale(0.95); }
+.tabs .lens {
+  position: absolute;
+  top: 0.25rem;
+  left: 0;
+  width: 0;
+  height: 2.25rem;
+  border-radius: 999px;
+  opacity: 0;
+  background: rgb(255 255 255 / 0.72);
+  box-shadow: inset 0 1px 0 #fff, 0 4px 12px -4px rgb(24 34 72 / 0.3);
+  transition: left 480ms cubic-bezier(.3, 1.35, .5, 1), width 480ms cubic-bezier(.3, 1.35, .5, 1), opacity 200ms ease;
+}
+.dark .tabs .lens { background: rgb(255 255 255 / 0.16); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), 0 4px 12px -4px rgb(0 0 0 / 0.5); }
+@media (max-width: 639px) {
+  .tabs { position: fixed; bottom: max(0.75rem, env(safe-area-inset-bottom)); left: 50%; translate: -50% 0; height: 3.25rem; padding: 0.3rem; }
+  .tabs a { height: 2.65rem; padding-inline: 1.25rem; font-size: 1rem; }
+  .tabs .lens { top: 0.3rem; height: 2.65rem; }
+}
 
-/* Smooth colour change when switching theme (added only around the switch). */
+/* ---- Booking picker ------------------------------------------------------------------
+   The day and time chips are small panes of clear glass on the smoked contact pane. The script
+   in Booker.astro creates them, so they are styled here and not in that component. */
+.slot {
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.04));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+  transition: transform 160ms cubic-bezier(.3, 1.6, .5, 1), background-color 150ms ease, border-color 150ms ease;
+}
+.slot:hover { border-color: var(--color-marigold); background: rgb(255 255 255 / 0.14); }
+.slot:active { transform: scale(0.95); }
+.slot.is-on {
+  border-color: var(--color-marigold);
+  background: var(--color-marigold);
+  color: var(--color-night);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45), 0 10px 22px -10px var(--color-marigold);
+}
+@media (prefers-reduced-motion: reduce) { .slot { transition: none; } }
+
+/* Smooth colour change when switching appearance (added only around the switch). */
 .theme-switching, .theme-switching * { transition: background-color 250ms ease, color 250ms ease, border-color 250ms ease !important; }
 
-/* The one moment of motion: the marigold bar under the name draws in on load. */
-@keyframes draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-.name-bar { transform-origin: left; animation: draw 900ms cubic-bezier(.2,.7,.2,1) 150ms both; }
-@media (prefers-reduced-motion: reduce) {
-  .name-bar { animation: none; }
-  .link { transition: none; }
-  #neural-bg { transition: none; }
+/* The name: ink text with a soft amber glow that follows the pointer inside the letters,
+   and one slow sheen across it on load. Plain CSS gradients clipped to the text. */
+@property --name-r { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --name-sweep { syntax: '<percentage>'; inherits: false; initial-value: -30%; }
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .name-sheen {
+    --x: 50%;
+    --y: 50%;
+    color: transparent;
+    background:
+      radial-gradient(circle var(--name-r) at var(--x) var(--y),
+        var(--color-marigold), color-mix(in srgb, var(--color-marigold) 45%, var(--color-ink)) 55%, transparent),
+      linear-gradient(100deg,
+        transparent calc(var(--name-sweep) - 10%),
+        color-mix(in srgb, var(--color-marigold) 60%, var(--color-ink)) var(--name-sweep),
+        transparent calc(var(--name-sweep) + 10%)),
+      linear-gradient(var(--color-ink), var(--color-ink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    transition: --name-r 700ms ease;
+    animation: name-sweep 1.8s cubic-bezier(.4,0,.2,1) 700ms both;
+  }
+  .name-sheen.is-lit { --name-r: 20cqi; transition-duration: 350ms; }
+  .name-sheen::selection { color: var(--color-night); }
 }
+@keyframes name-sweep { from { --name-sweep: -30%; } to { --name-sweep: 130%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  #wallpaper i { animation: none; }
+  .glass, .btn, .tabs a, .tabs .lens, .row { transition: none; }
+  .name-sheen { animation: none; transition: none; }
+  .link { transition: none; }
+}
+
+/* The K mark in the header: its chevron nudges forward when you point at it. */
+.logo .logo-arm { transition: transform 260ms cubic-bezier(.3, 1.6, .5, 1); }
+.logo:hover .logo-arm { transform: translateX(3px); }
+.logo:active { scale: 0.94; }
+@media (prefers-reduced-motion: reduce) { .logo .logo-arm { transition: none; } }

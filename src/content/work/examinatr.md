@@ -2,6 +2,7 @@
 title: examinatr
 summary: A social discovery app that pays people for sharing posts and completing daily challenges with friends.
 year: 2026
+involvement: end-to-end
 stack: [iOS, Android]
 appStore: https://apps.apple.com/us/app/examinatr-social-discovery/id1604066484
 playStore: https://play.google.com/store/apps/details?id=com.examinatr.mobileapp

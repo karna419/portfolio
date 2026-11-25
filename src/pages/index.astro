@@ -4,89 +4,71 @@ import { site } from '../site';
 import { getWork } from '../lib';
 import Icon from '../components/Icon.astro';
 import Booker from '../components/Booker.astro';
+import Phone from '../components/Phone.astro';
 
 const work = await getWork();
 const hire = site.links.filter((l) => site.hire.includes(l.label));
 ---
 <Base>
-  <section class="mx-auto max-w-6xl px-5 sm:px-8 pt-20 sm:pt-32 pb-16">
-    {site.available && (
-      <a href="#contact" class="mb-8 inline-flex items-center gap-2.5 rounded-full border border-rule bg-paper/70 px-4 py-1.5 text-sm font-medium hover:border-go transition-colors">
-        <span class="relative flex size-2.5" aria-hidden="true">
-          <span class="absolute inline-flex size-full rounded-full bg-go opacity-60 animate-ping motion-reduce:hidden"></span>
-          <span class="relative inline-flex size-2.5 rounded-full bg-go"></span>
-        </span>
-        Available for new work
-      </a>
-    )}
-    <!-- Sized against the column width (cqi) so the name always spans it exactly. -->
-    <div class="@container">
-    <h1 class="font-display font-bold tracking-[-0.045em] leading-[0.9] text-[16.8cqi] whitespace-nowrap">
-      {site.name}
-    </h1>
+  <section class="mx-auto max-w-6xl px-5 sm:px-8 pt-8 sm:pt-14 pb-12">
+    <div class="grid items-center gap-x-12 gap-y-12 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+      <div>
+        {site.available && (
+          <a href="#contact" class="glass capsule mb-8 inline-flex items-center gap-2.5 px-4 h-9 text-sm font-medium">
+            <span class="relative flex size-2.5" aria-hidden="true">
+              <span class="absolute inline-flex size-full rounded-full bg-go opacity-60 animate-ping motion-reduce:hidden"></span>
+              <span class="relative inline-flex size-2.5 rounded-full bg-go"></span>
+            </span>
+            Available
+          </a>
+        )}
+        <!-- Sized against the column width (cqi) so the name always spans it exactly. -->
+        <div class="@container">
+          <h1 class="name-sheen font-display font-bold tracking-[-0.045em] leading-[0.95] text-[16.6cqi] whitespace-nowrap">
+            {site.name}
+          </h1>
+        </div>
+
+        <p class="mt-7 max-w-[30rem] text-xl sm:text-2xl leading-snug text-balance">{site.intro}</p>
+
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a href="#work" class="btn btn-tint">See my work</a>
+          {site.cv && <a class="link ml-2" href={site.cv}>CV (PDF)</a>}
+        </div>
+      </div>
+
+      <Phone />
     </div>
-    <div class="name-bar mt-4 h-3 sm:h-4 w-full bg-marigold rounded-full" aria-hidden="true"></div>
-
-    <p class="mt-10 max-w-[34rem] text-xl sm:text-2xl leading-snug text-balance">{site.intro}</p>
-
-    <ul class="mt-8 flex flex-wrap items-center gap-3">
-      {site.email && (
-        <li>
-          <a href={`mailto:${site.email}`} aria-label="Email" title="Email"
-             class="grid place-items-center size-11 rounded-full border border-rule text-ink/85 hover:text-night hover:bg-marigold hover:border-marigold transition-colors">
-            <Icon name="mail" class="size-5" />
-          </a>
-        </li>
-      )}
-      {site.links.map((l) => (
-        <li>
-          <a href={l.href} rel="me" aria-label={l.label} title={l.label}
-             class="grid place-items-center size-11 rounded-full border border-rule text-ink/85 hover:text-night hover:bg-marigold hover:border-marigold transition-colors">
-            <Icon name={l.icon} class="size-5" />
-          </a>
-        </li>
-      ))}
-      {site.cv && <li class="ml-2"><a class="link" href={site.cv}>CV (PDF)</a></li>}
-    </ul>
-
-    {site.location && (
-      <p class="mt-6 flex items-center gap-1.5 text-muted">
-        <Icon name="pin" class="size-[1.1rem]" />
-        {site.location}
-      </p>
-    )}
   </section>
 
-  <section id="work" class="mx-auto max-w-6xl px-5 sm:px-8 py-16 scroll-mt-8">
-    <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight">Selected work</h2>
+  <section id="work" class="mx-auto max-w-6xl px-5 sm:px-8 py-12 scroll-mt-20">
+    <h2 class="text-3xl sm:text-4xl font-bold">Selected work</h2>
 
     {work.length === 0 ? (
-      <p class="mt-8 max-w-[60ch] text-muted">
+      <p class="glass pane mt-6 p-6 max-w-[60ch] text-muted">
         Project write-ups are on the way. In the meantime, my code is on{' '}
         <a class="link text-ink" href="https://github.com/karna419">GitHub</a>.
       </p>
     ) : (
-      <ul class="mt-8 border-t border-rule">
+      <ul class="glass pane mt-6 overflow-hidden divide-y divide-rule">
         {work.map((p) => (
-          <li class="border-b border-rule">
-            <a
-              href={`/work/${p.id}/`}
-              class="group grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 sm:gap-x-8 gap-y-1 py-6 sm:grid-cols-[5rem_minmax(0,1fr)_minmax(0,16rem)] items-baseline"
-            >
-              <span class="text-muted tabular-nums col-span-2 sm:col-span-1">{p.data.year}</span>
-              <span class="col-span-2 sm:col-span-1 flex gap-4 items-start">
-                {p.data.icon && (
-                  <img src={p.data.icon} alt="" width="56" height="56" loading="lazy" class="size-14 shrink-0 rounded-[22%] border border-rule" />
-                )}
-                <span>
-                <span class="font-display text-2xl font-semibold tracking-tight underline decoration-transparent decoration-2 underline-offset-4 group-hover:decoration-marigold transition-colors">
-                  {p.data.title}
-                </span>
-                {p.data.draft && <span class="ml-2 text-sm text-marigold-deep">(draft — hidden on the live site)</span>}
-                <span class="block mt-1 text-muted max-w-[60ch]">{p.data.summary}</span>
-                </span>
+          <li>
+            <a href={`/work/${p.id}/`} class="row flex items-center gap-4 sm:gap-5 px-4 sm:px-6 py-4 sm:py-5">
+              {p.data.icon ? (
+                <img src={p.data.icon} alt="" width="60" height="60" loading="lazy" class="size-[3.75rem] shrink-0 rounded-[23%] shadow-[0_8px_18px_-8px_rgb(10_16_40/0.5)]" />
+              ) : (
+                <span class="size-[3.75rem] shrink-0 rounded-[23%] border border-dashed border-rule" aria-hidden="true"></span>
+              )}
+              <span class="min-w-0 flex-1">
+                <span class="font-display text-xl sm:text-[1.35rem] font-semibold tracking-tight">{p.data.title}</span>
+                {p.data.draft && <span class="ml-2 text-sm text-marigold-deep">(draft, hidden on the live site)</span>}
+                <span class="block mt-0.5 text-muted text-[0.97rem] leading-snug max-w-[62ch]">{p.data.summary}</span>
               </span>
-              <span class="col-span-2 sm:col-span-1 text-sm text-muted sm:text-right">{p.data.stack.join(', ')}</span>
+              <span class="hidden md:block shrink-0 text-right text-sm text-muted leading-snug">
+                <span class="block">{p.data.stack.join(', ')}</span>
+                <span class="block tabular-nums">{p.data.year}</span>
+              </span>
+              <svg class="size-4 shrink-0 text-muted/70" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5" /></svg>
             </a>
           </li>
         ))}
@@ -94,11 +76,11 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
     )}
   </section>
 
-  <section id="about" class="mx-auto max-w-6xl px-5 sm:px-8 py-16 scroll-mt-8">
-    <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight">About me</h2>
+  <section id="about" class="mx-auto max-w-6xl px-5 sm:px-8 py-12 scroll-mt-20">
+    <h2 class="text-3xl sm:text-4xl font-bold">About me</h2>
 
-    <div class="mt-8 grid gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,25rem)]">
-      <div class="max-w-[60ch] space-y-5 text-lg leading-relaxed">
+    <div class="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] items-start">
+      <div class="glass pane p-6 sm:p-9 space-y-5 text-lg leading-relaxed">
         {site.about.map((para) => <p>{para}</p>)}
         {site.available && (
           <p>
@@ -108,27 +90,27 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
         )}
       </div>
 
-      <dl class="border-t border-rule self-start">
+      <dl class="glass pane overflow-hidden divide-y divide-rule">
         {site.stack.map((row) => (
-          <div class="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-4 border-b border-rule py-3">
-            <dt class="text-sm text-muted pt-0.5">{row.group}</dt>
-            <dd>{row.items.join(', ')}</dd>
+          <div class="flex items-baseline justify-between gap-6 px-5 sm:px-6 py-3.5">
+            <dt class="font-medium shrink-0">{row.group}</dt>
+            <dd class="text-muted text-right">{row.items.join(', ')}</dd>
           </div>
         ))}
       </dl>
     </div>
   </section>
 
-  <section id="contact" class="mx-auto max-w-6xl px-5 sm:px-8 py-16 scroll-mt-8">
-    <div class="rounded-2xl bg-night text-snow dark:ring-1 dark:ring-rule px-6 sm:px-12 py-12 sm:py-16">
-      <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight max-w-[18ch]">Have something you want built?</h2>
+  <section id="contact" class="mx-auto max-w-6xl px-5 sm:px-8 py-12 scroll-mt-20">
+    <div class="glass glass-dark rounded-[2.25rem] text-snow px-6 sm:px-12 py-12 sm:py-16">
+      <h2 class="text-3xl sm:text-5xl font-bold max-w-[18ch]">Have something you want built?</h2>
       <p class="mt-4 max-w-[55ch] text-snow/75">{site.available && "I'm free to start now. "}Tell me what you're working on. I usually reply within a couple of days.</p>
       <div class="mt-8 flex flex-wrap gap-3">
         {site.email && (
-          <a href={`mailto:${site.email}`} class="inline-block rounded-full bg-marigold text-night font-semibold px-6 py-3 hover:bg-snow transition-colors">Email me</a>
+          <a href={`mailto:${site.email}`} class="btn btn-tint">Email me</a>
         )}
         {hire.map((l) => (
-          <a href={l.href} class="inline-flex items-center gap-2 rounded-full border border-snow/30 px-5 py-3 font-semibold hover:bg-snow hover:text-night transition-colors">
+          <a href={l.href} class="btn border border-snow/25 bg-snow/8 hover:bg-snow hover:text-night transition-colors">
             <Icon name={l.icon} class="size-4" />
             Hire me on {l.label}
           </a>
@@ -139,3 +121,17 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
     </div>
   </section>
 </Base>
+
+<script>
+  // The glow inside the name follows the pointer (see .name-sheen in global.css).
+  const name = document.querySelector<HTMLElement>('.name-sheen');
+  if (name && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    name.addEventListener('pointermove', (e) => {
+      const r = name.getBoundingClientRect();
+      name.style.setProperty('--x', `${e.clientX - r.left}px`);
+      name.style.setProperty('--y', `${e.clientY - r.top}px`);
+      name.classList.add('is-lit');
+    });
+    name.addEventListener('pointerleave', () => name.classList.remove('is-lit'));
+  }
+</script>

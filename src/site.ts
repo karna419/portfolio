@@ -18,9 +18,9 @@ export const site = {
   stack: [
     { group: 'Mobile', items: ['React Native', 'Ionic', 'Cordova', 'Native Android (Android Studio)'] },
     { group: 'Web', items: ['React', 'Next.js'] },
-    { group: 'Back end', items: ['PHP', 'Python APIs', 'GraphQL'] },
+    { group: 'Back end', items: ['Node.js', 'PHP', 'Python', 'GraphQL'] },
     { group: 'Databases', items: ['MySQL', 'PostgreSQL'] },
-    { group: 'Shipping', items: ['AWS', 'GitHub', 'GitLab', 'Jenkins'] },
+    { group: 'Shipping', items: ['AWS', 'EAS', 'GitHub', 'GitLab', 'Jenkins'] },
   ],
   email: 'karnaumaidurai@gmail.com', // leave empty to hide the email link
   // Shown as icons under the intro, in this order (after email).

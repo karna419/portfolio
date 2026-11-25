@@ -9,6 +9,8 @@ const work = defineCollection({
     summary: z.string(),
     year: z.number(),
     role: z.string().optional(),
+    // 'end-to-end' where I built the whole mobile app myself, 'contributor' where I was part of a team.
+    involvement: z.enum(['end-to-end', 'contributor']).optional(),
     stack: z.array(z.string()).default([]),
     url: z.string().url().optional(),
     repo: z.string().url().optional(),

@@ -2,6 +2,7 @@
 title: SNOWMANIA
 summary: The event app for Raiffeisen SNOWMANIA at Kreischberg, with perks, discounts and live news for the day.
 year: 2026
+involvement: end-to-end
 stack: [iOS, Android]
 appStore: https://apps.apple.com/us/app/snowmania/id6444923635
 playStore: https://play.google.com/store/apps/details?id=com.snowmania.mobile

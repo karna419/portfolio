@@ -12,16 +12,19 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
+const involvement = { 'end-to-end': 'Sole developer', contributor: 'Contributor' };
 ---
 <Base title={d.title} description={d.summary}>
-  <article class="mx-auto max-w-6xl px-5 sm:px-8 pt-16 sm:pt-24 pb-16">
+  <article class="mx-auto max-w-6xl px-4 sm:px-8 pt-6 sm:pt-10 pb-10">
+    <div class="glass rounded-[2.25rem] px-6 sm:px-12 py-10 sm:py-14">
     <a href="/#work" class="link text-sm">Back to all work</a>
-    {d.icon && <img src={d.icon} alt={`${d.title} app icon`} width="96" height="96" class="mt-8 size-24 rounded-[22%] border border-rule" />}
-    <h1 class="mt-6 font-bold tracking-[-0.03em] text-[clamp(2.5rem,7vw,5rem)] max-w-[20ch]">{d.title}</h1>
+    {d.icon && <img src={d.icon} alt={`${d.title} app icon`} width="96" height="96" class="mt-8 size-24 rounded-[23%] shadow-[0_12px_26px_-10px_rgb(10_16_40/0.55)]" />}
+    <h1 class="mt-6 font-bold tracking-[-0.035em] text-[clamp(2.5rem,7vw,5rem)] max-w-[20ch]">{d.title}</h1>
     <p class="mt-5 text-xl sm:text-2xl leading-snug max-w-[44ch] text-balance">{d.summary}</p>
 
     <dl class="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 border-y border-rule py-6 text-[0.95rem]">
       <div><dt class="text-muted">Year</dt><dd class="tabular-nums">{d.year}</dd></div>
+      {d.involvement && <div><dt class="text-muted">Involvement</dt><dd>{involvement[d.involvement]}</dd></div>}
       {d.role && <div><dt class="text-muted">Role</dt><dd>{d.role}</dd></div>}
       {d.stack.length > 0 && <div><dt class="text-muted">Built with</dt><dd>{d.stack.join(', ')}</dd></div>}
       {(d.url || d.repo || d.appStore || d.playStore) && (
@@ -39,6 +42,7 @@ const d = entry.data;
 
     <div class="prose-work mt-12">
       <Content />
+    </div>
     </div>
   </article>
 </Base>

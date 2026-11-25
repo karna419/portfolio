@@ -1,6 +1,7 @@
 ---
 // "Book a 15-minute call", drawn by the site and backed by Cal.com through /api/slots and
-// /api/book. Lives inside the dark contact panel, so it only uses the fixed night/snow colours.
+// /api/book. Lives inside the smoked-glass contact pane, so it only uses the fixed night/snow
+// colours. The day and time chips are styled by .slot in global.css, because the script creates them.
 // Stays hidden until the API answers, so a missing Cal.com setup never shows a broken widget.
 ---
 <div id="call" class="booker mt-12 border-t border-snow/15 pt-10 scroll-mt-8" hidden>
@@ -36,7 +37,7 @@
     <!-- Honeypot: hidden from people, irresistible to bots. -->
     <input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute -left-[9999px] h-0 w-0 opacity-0" />
     <div class="flex flex-wrap items-center gap-4">
-      <button type="submit" class="rounded-full bg-marigold text-night font-semibold px-6 py-3 hover:bg-snow transition-colors disabled:opacity-60 cursor-pointer">Confirm the call</button>
+      <button type="submit" class="btn btn-tint disabled:opacity-60 cursor-pointer">Confirm the call</button>
       <p data-error class="text-sm text-marigold" role="alert"></p>
     </div>
   </form>
@@ -52,11 +53,13 @@
 </div>
 
 <style>
+  /* Fields are shallow wells in the glass. */
   .field {
-    background: color-mix(in srgb, var(--color-snow) 6%, transparent);
-    border: 1px solid color-mix(in srgb, var(--color-snow) 18%, transparent);
-    border-radius: 10px;
-    padding: 0.65rem 0.85rem;
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.04));
+    border: 1px solid rgb(255 255 255 / 0.16);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14);
+    border-radius: 14px;
+    padding: 0.7rem 0.95rem;
     color: var(--color-snow);
   }
   .field:focus { outline: none; border-color: var(--color-marigold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-marigold) 30%, transparent); }
@@ -94,9 +97,9 @@
     root.querySelectorAll<HTMLElement>('[data-step]').forEach((el) => (el.hidden = el.dataset.step !== step));
   };
 
-  const pill = 'snap-start shrink-0 rounded-2xl border px-4 py-2.5 text-left transition-colors cursor-pointer';
-  const off = 'border-snow/15 hover:border-marigold';
-  const on = 'border-marigold bg-marigold text-night';
+  const pill = 'slot snap-start shrink-0 px-4 py-2.5 text-left cursor-pointer';
+  const off = '';
+  const on = 'is-on';
 
   function renderDays(active: string) {
     daysEl.replaceChildren(...Object.keys(days).map((day) => {
@@ -106,7 +109,7 @@
       b.setAttribute('role', 'option');
       b.setAttribute('aria-selected', String(day === active));
       b.className = `${pill} ${day === active ? on : off}`;
-      b.innerHTML = `<span class="block text-xs uppercase tracking-wider opacity-70">${dayName.format(d)}</span><span class="block font-semibold">${dayNum.format(d)}</span>`;
+      b.innerHTML = `<span class="block text-xs opacity-70">${dayName.format(d)}</span><span class="block font-semibold">${dayNum.format(d)}</span>`;
       b.onclick = () => { renderDays(day); renderSlots(day); };
       return b;
     }));
@@ -118,7 +121,7 @@
       const b = document.createElement('button');
       b.type = 'button';
       b.setAttribute('role', 'option');
-      b.className = `rounded-xl border border-snow/15 px-3 py-2.5 text-left hover:border-marigold hover:bg-snow/5 transition-colors cursor-pointer`;
+      b.className = 'slot px-3 py-2.5 text-left cursor-pointer';
       b.innerHTML = `<span class="block font-semibold tabular-nums">${timeLocal.format(d)}</span>` +
         (sameZone ? '' : `<span class="block text-xs text-snow/55 tabular-nums">${timeHome.format(d)} in Chennai</span>`);
       b.onclick = () => choose(iso);
@@ -172,8 +175,8 @@
         a.hidden = false;
       }
       show('done');
-      // Light up the network in the background.
-      window.dispatchEvent(new CustomEvent('neural:burst'));
+      // The wallpaper swells for a moment.
+      window.dispatchEvent(new CustomEvent('bg:burst'));
     } catch {
       errorEl.textContent = 'Couldn’t reach the server. Try again, or email me.';
     } finally {

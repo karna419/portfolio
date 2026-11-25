@@ -1,6 +1,6 @@
 # karunagaran — portfolio
 
-Personal site built with [Astro](https://astro.build) and Tailwind CSS. Static output. The only JavaScript is the dark-mode toggle and the three.js neural-network background (`src/scripts/neural-bg.ts`), which loads after the page.
+Personal site built with [Astro](https://astro.build) and Tailwind CSS. Static output. It is styled like a native iOS app: a fixed wallpaper with panes of translucent glass over it (`.glass` in `src/styles/global.css`), set in the system font. The only JavaScript is the dark-mode toggle, the tab bar, the booking widget and the hero phone (`src/components/Phone.astro`), which shows the shipped apps, Chennai time and the contact links.
 
 ## Run it
 
@@ -14,7 +14,7 @@ npm run preview   # serve the production build locally
 ## Edit your details
 
 - **Name, intro, email, links, CV:** `src/site.ts`
-- **Projects:** one Markdown file per project in `src/content/work/`. Copy `example-project.md`.
+- **Projects:** one Markdown file per project in `src/content/work/`. Copy an existing one, such as `eurostruct.md`, and change it.
   Projects with `draft: true` only show while running `npm run dev`.
 - **Images:** put them in `public/` (e.g. `public/work/`) and link them as `/work/file.png`.
 - **CV:** drop the PDF in `public/` and set `cv: '/your-file.pdf'` in `src/site.ts`.

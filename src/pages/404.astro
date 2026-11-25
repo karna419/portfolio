@@ -2,9 +2,11 @@
 import Base from '../layouts/Base.astro';
 ---
 <Base title="Page not found">
-  <section class="mx-auto max-w-6xl px-5 sm:px-8 py-24 sm:py-32">
-    <h1 class="font-bold tracking-[-0.04em] text-[clamp(3rem,10vw,7rem)]">Nothing here.</h1>
-    <p class="mt-4 text-xl max-w-[44ch]">This page doesn't exist, or it moved. The homepage has everything that's live.</p>
-    <a href="/" class="link mt-8 inline-block text-lg">Go to the homepage</a>
+  <section class="mx-auto max-w-6xl px-5 sm:px-8 py-12 sm:py-20">
+    <div class="glass pane p-8 sm:p-14">
+      <h1 class="font-bold tracking-[-0.04em] text-[clamp(3rem,10vw,7rem)]">Nothing here.</h1>
+      <p class="mt-4 text-xl max-w-[44ch]">This page doesn't exist, or it moved. The homepage has everything that's live.</p>
+      <a href="/" class="btn btn-tint mt-8">Go to the homepage</a>
+    </div>
   </section>
 </Base>

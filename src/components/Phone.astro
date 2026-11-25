@@ -1,0 +1,146 @@
+---
+// The hero figure: a slab of glass shaped like a phone, with a home screen that is real.
+// The app icons are the shipped apps from the work collection and open their case studies,
+// the clock is Chennai local time, and the dock holds the contact links.
+import { site } from '../site';
+import { getWork } from '../lib';
+import Icon from './Icon.astro';
+
+// Only mobile apps belong on the home screen: projects whose stack lists iOS or Android.
+const isMobile = (stack: string[]) => stack.some((s) => /^(ios|android)$/i.test(s));
+const apps = (await getWork()).filter((p) => p.data.icon && isMobile(p.data.stack)).slice(0, 9);
+const dock = [
+  ...(site.email ? [{ label: 'Email', icon: 'mail' as const, href: `mailto:${site.email}` }] : []),
+  ...site.links,
+];
+---
+<div class="stage">
+  <div class="phone glass" id="phone">
+    <div class="status" aria-hidden="true">
+      <span data-clock-short>&nbsp;</span>
+      <span class="lens-dot"></span>
+      <svg viewBox="0 0 46 12" class="h-3 w-auto" fill="currentColor">
+        <rect x="0" y="7" width="3" height="5" rx="1" /><rect x="5" y="5" width="3" height="7" rx="1" /><rect x="10" y="2.5" width="3" height="9.5" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" />
+        <rect x="24" y="1" width="19" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.6" /><rect x="26" y="3" width="13" height="6" rx="1.5" /><rect x="44" y="4" width="2" height="4" rx="1" opacity="0.6" />
+      </svg>
+    </div>
+
+    <div class="widgets">
+      <div class="widget glass">
+        <p class="label">{site.location.split(',')[0] || 'Local time'}</p>
+        <p class="time" data-clock>&nbsp;</p>
+        <p class="sub" data-clock-day>Local time</p>
+      </div>
+      <a href="#contact" class="widget glass">
+        <span class="dot" data-on={site.available ? '' : undefined} aria-hidden="true"></span>
+        <p class="big">{site.available ? 'Available' : 'Booked'}</p>
+      </a>
+    </div>
+
+    <ul class="apps">
+      {apps.map((p) => (
+        <li>
+          <a href={`/work/${p.id}/`} title={p.data.title}>
+            <img src={p.data.icon} alt="" width="56" height="56" loading="eager" />
+            <span>{p.data.title}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <ul class="dock glass">
+      {dock.map((l) => (
+        <li>
+          <a href={l.href} aria-label={l.label} title={l.label} rel={l.href.startsWith('mailto:') ? undefined : 'me'}>
+            <Icon name={l.icon} class="size-[1.35rem]" />
+          </a>
+        </li>
+      ))}
+    </ul>
+    <span class="home-bar" aria-hidden="true"></span>
+  </div>
+</div>
+
+<style>
+  .stage { perspective: 1400px; display: grid; place-items: center; }
+  .phone {
+    --tilt-x: 0deg;
+    --tilt-y: 0deg;
+    width: min(19rem, 82vw);
+    aspect-ratio: 9 / 16.6;
+    border-radius: 3.1rem;
+    padding: 1.1rem 1.05rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+    transition: transform 500ms cubic-bezier(.2, .8, .2, 1), --lit 350ms ease;
+    /* A second, inner edge: the thickness of the glass. */
+    outline: 1px solid rgb(255 255 255 / 0.35);
+    outline-offset: -7px;
+  }
+  :global(.dark) .phone { outline-color: rgb(255 255 255 / 0.1); }
+
+  .status { display: flex; align-items: center; justify-content: space-between; padding: 0.15rem 0.85rem 0; font-size: 0.86rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .status > :first-child { min-width: 3.2rem; }
+  .lens-dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; background: rgb(11 13 20 / 0.75); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.14); }
+
+  .widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-top: 1.15rem; }
+  .widget { aspect-ratio: 1; border-radius: 1.5rem; padding: 0.85rem 0.9rem; display: flex; flex-direction: column; }
+  .widget .label { font-size: 0.74rem; font-weight: 650; color: var(--color-marigold-deep); }
+  .widget .time { margin-top: auto; font-family: var(--font-display); font-size: 1.85rem; font-weight: 650; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .widget .big { margin-top: auto; font-family: var(--font-display); font-size: 1.22rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .widget .sub { margin-top: 0.2rem; font-size: 0.74rem; color: var(--color-muted); }
+  .dot { width: 0.8rem; height: 0.8rem; border-radius: 50%; background: var(--color-muted); }
+  .dot[data-on] { background: var(--color-go); box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-go) 22%, transparent); }
+  a.widget { transition: transform 180ms cubic-bezier(.3, 1.6, .5, 1), --lit 350ms ease; }
+  a.widget:active { transform: scale(0.95); }
+
+  .apps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.95rem 0.35rem; margin-top: 1.3rem; }
+  .apps a { display: grid; justify-items: center; gap: 0.3rem; transition: transform 180ms cubic-bezier(.3, 1.6, .5, 1); }
+  .apps a:hover { transform: translateY(-3px) scale(1.05); }
+  .apps a:active { transform: scale(0.9); }
+  .apps img { width: 3.75rem; height: 3.75rem; border-radius: 23%; box-shadow: 0 8px 18px -8px rgb(10 16 40 / 0.55), inset 0 0 0 1px rgb(255 255 255 / 0.18); }
+  .apps span { max-width: 5.3rem; font-size: 0.68rem; font-weight: 550; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .dock { margin-top: auto; display: flex; justify-content: space-around; align-items: center; border-radius: 1.75rem; padding: 0.55rem 0.4rem; }
+  .dock a { display: grid; place-items: center; width: 2.7rem; height: 2.7rem; border-radius: 28%; background: rgb(255 255 255 / 0.55); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8); transition: transform 180ms cubic-bezier(.3, 1.6, .5, 1), background-color 150ms ease, color 150ms ease; }
+  :global(.dark) .dock a { background: rgb(255 255 255 / 0.1); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2); }
+  .dock a:hover { transform: translateY(-3px) scale(1.06); background: var(--color-marigold); color: var(--color-night); }
+  .dock a:active { transform: scale(0.9); }
+  .home-bar { align-self: center; margin-top: 0.7rem; width: 34%; height: 0.3rem; border-radius: 999px; background: currentColor; opacity: 0.55; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .phone, .apps a, .dock a, a.widget { transition: none; transform: none; }
+  }
+</style>
+
+<script>
+  // The clock shows the time where the work happens.
+  const ZONE = 'Asia/Kolkata';
+  const time = new Intl.DateTimeFormat('en-GB', { timeZone: ZONE, hour: '2-digit', minute: '2-digit' });
+  const day = new Intl.DateTimeFormat('en', { timeZone: ZONE, weekday: 'long' });
+  const tick = () => {
+    const now = new Date();
+    document.querySelectorAll('[data-clock], [data-clock-short]').forEach((el) => (el.textContent = time.format(now)));
+    document.querySelectorAll('[data-clock-day]').forEach((el) => (el.textContent = `${day.format(now)}, IST`));
+  };
+  tick();
+  setInterval(tick, 15000);
+
+  // The glass leans a little towards the pointer.
+  const phone = document.getElementById('phone');
+  const stage = phone?.closest<HTMLElement>('section');
+  if (phone && stage && matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) {
+    stage.addEventListener('pointermove', (e) => {
+      const r = phone.getBoundingClientRect();
+      const x = (e.clientX - (r.left + r.width / 2)) / innerWidth;
+      const y = (e.clientY - (r.top + r.height / 2)) / innerHeight;
+      phone.style.setProperty('--tilt-y', `${(x * 16).toFixed(2)}deg`);
+      phone.style.setProperty('--tilt-x', `${(-y * 12).toFixed(2)}deg`);
+    });
+    stage.addEventListener('pointerleave', () => {
+      phone.style.setProperty('--tilt-x', '0deg');
+      phone.style.setProperty('--tilt-y', '0deg');
+    });
+  }
+</script>

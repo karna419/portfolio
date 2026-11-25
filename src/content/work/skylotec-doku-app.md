@@ -2,6 +2,7 @@
 title: SKYLOTEC DOKU APP
 summary: Digital installation records for SKYLOTEC fall-protection systems, replacing the paper form roofers are required to fill in.
 year: 2026
+involvement: contributor
 stack: [iOS, Android]
 appStore: https://apps.apple.com/us/app/skylotec-doku-app/id1528748177
 icon: /work/skylotec-doku-app-icon.png
