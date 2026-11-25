@@ -2,7 +2,7 @@
 title: haushaut Visualizer
 summary: Take a photo of a house and see a new haushaut facade or roof on it in seconds.
 year: 2026
-stack: [iOS]
+stack: [iOS, Android]
 appStore: https://apps.apple.com/us/app/haushaut-visualizer/id6806738725
 icon: /work/haushaut-visualizer-icon.png
 ---

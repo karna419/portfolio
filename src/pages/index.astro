@@ -17,15 +17,34 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
     </div>
     <div class="name-bar mt-4 h-3 sm:h-4 w-full bg-marigold rounded-full" aria-hidden="true"></div>
 
-    <div class="mt-10 grid gap-8 sm:grid-cols-[minmax(0,34rem)_1fr] items-end">
-      <p class="text-xl sm:text-2xl leading-snug text-balance">{site.intro}</p>
-      <ul class="flex flex-wrap gap-x-6 gap-y-2 sm:justify-end">
-        {site.email && <li><a class="link" href={`mailto:${site.email}`}>Email</a></li>}
-        {site.links.map((l) => <li><a class="link" href={l.href} rel="me">{l.label}</a></li>)}
-        {site.cv && <li><a class="link" href={site.cv}>CV (PDF)</a></li>}
-      </ul>
-    </div>
-    {site.location && <p class="mt-6 text-muted">Based in {site.location}</p>}
+    <p class="mt-10 max-w-[34rem] text-xl sm:text-2xl leading-snug text-balance">{site.intro}</p>
+
+    <ul class="mt-8 flex flex-wrap items-center gap-3">
+      {site.email && (
+        <li>
+          <a href={`mailto:${site.email}`} aria-label="Email" title="Email"
+             class="grid place-items-center size-11 rounded-full border border-rule text-ink/85 hover:text-night hover:bg-marigold hover:border-marigold transition-colors">
+            <Icon name="mail" class="size-5" />
+          </a>
+        </li>
+      )}
+      {site.links.map((l) => (
+        <li>
+          <a href={l.href} rel="me" aria-label={l.label} title={l.label}
+             class="grid place-items-center size-11 rounded-full border border-rule text-ink/85 hover:text-night hover:bg-marigold hover:border-marigold transition-colors">
+            <Icon name={l.icon} class="size-5" />
+          </a>
+        </li>
+      ))}
+      {site.cv && <li class="ml-2"><a class="link" href={site.cv}>CV (PDF)</a></li>}
+    </ul>
+
+    {site.location && (
+      <p class="mt-6 flex items-center gap-1.5 text-muted">
+        <Icon name="pin" class="size-[1.1rem] text-marigold" />
+        {site.location}
+      </p>
+    )}
   </section>
 
   <section id="work" class="mx-auto max-w-6xl px-5 sm:px-8 py-16 scroll-mt-8">

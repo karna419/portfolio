@@ -1,5 +1,5 @@
 // Everything personal lives here. Edit this file first.
-export type IconName = 'upwork' | 'fiverr' | 'linkedin' | 'github';
+export type IconName = 'upwork' | 'fiverr' | 'linkedin' | 'github' | 'apple' | 'googleplay' | 'mail' | 'pin';
 
 export const site = {
   name: 'Karunagaran',
@@ -7,7 +7,7 @@ export const site = {
   intro: 'I build web and mobile apps — from the first sketch to the version people use every day.',
   location: 'Chennai, India', // leave empty to hide
   email: 'karnaumaidurai@gmail.com', // leave empty to hide the email link
-  // Shown as icons in the header and as text links under the intro, in this order.
+  // Shown as icons under the intro, in this order (after email).
   links: [
     { label: 'Upwork', icon: 'upwork', href: 'https://www.upwork.com/freelancers/~016aef5a26f06d2ddf' },
     { label: 'Fiverr', icon: 'fiverr', href: 'https://www.fiverr.com/karunagaran' },

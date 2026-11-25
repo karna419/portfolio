@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { getWork } from '../../lib';
+import Icon from '../../components/Icon.astro';
 
 export async function getStaticPaths() {
   const work = await getWork();
@@ -23,11 +24,12 @@ const d = entry.data;
       <div><dt class="text-muted">Year</dt><dd class="tabular-nums">{d.year}</dd></div>
       {d.role && <div><dt class="text-muted">Role</dt><dd>{d.role}</dd></div>}
       {d.stack.length > 0 && <div><dt class="text-muted">Built with</dt><dd>{d.stack.join(', ')}</dd></div>}
-      {(d.url || d.repo || d.appStore) && (
+      {(d.url || d.repo || d.appStore || d.playStore) && (
         <div>
           <dt class="text-muted">Links</dt>
           <dd class="flex flex-wrap gap-x-4">
-            {d.appStore && <a class="link" href={d.appStore}>App Store</a>}
+            {d.appStore && <a class="link inline-flex items-center gap-1.5" href={d.appStore}><Icon name="apple" class="size-4" />App Store</a>}
+            {d.playStore && <a class="link inline-flex items-center gap-1.5" href={d.playStore}><Icon name="googleplay" class="size-4" />Google Play</a>}
             {d.url && <a class="link" href={d.url}>Live site</a>}
             {d.repo && <a class="link" href={d.repo}>Code</a>}
           </dd>
