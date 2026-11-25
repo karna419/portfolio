@@ -88,7 +88,7 @@ const showActivity = site.showActivity && (!activity.demo || import.meta.env.DEV
       <h2 class="text-3xl sm:text-4xl font-bold">What I do</h2>
       <ul class="mt-6 grid gap-5 sm:grid-cols-2">
         {site.services.map((s) => (
-          <li class="glass pane p-6 sm:p-7">
+          <li class={`glass pane p-6 sm:p-7 ${site.services.length % 2 ? 'first:sm:col-span-2' : ''}`}>
             <h3 class="text-xl font-semibold">{s.title}</h3>
             <p class="mt-2 text-muted leading-relaxed">{s.text}</p>
           </li>

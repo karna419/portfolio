@@ -15,8 +15,10 @@ export const site = {
   // It is built but switched off. Its data is still made up (src/data/activity.ts), and made-up
   // data never shows on the live site even when this is true.
   showActivity: false,
-  // What I do: shown as four cards under the work list. Leave the list empty to hide the section.
+  // What I do: shown as cards under the work list. With an odd number, the first one spans the
+  // full width. Leave the list empty to hide the section.
   services: [
+    { title: 'Internal software factories', text: 'A company\'s own setup for producing software: agents, conventions and pipelines in one place, so internal teams get the tools they need built quickly and to the same standard.' },
     { title: 'Automating internal work', text: 'The repetitive jobs a team does by hand, such as reports, data entry and hand-offs, turned into tools and agents that run on their own.' },
     { title: 'App revamps and overhauls', text: 'An ageing app reworked or rebuilt: a fresh design and current frameworks, with the same data and users carried across.' },
     { title: 'Agent-ready codebases', text: 'Old code migrated into a shape AI agents can work in: clear structure, written-down conventions and checks that catch mistakes.' },
@@ -25,7 +27,7 @@ export const site = {
   // About me: one string per paragraph.
   about: [
     "I've been building software for a living since February 2019. Most of that time has gone into apps: hybrid ones with Ionic and Cordova, React Native, native Android, and the web side in React and Next.js.",
-    'Today I work with Claude every day. It is part of how I plan, write and ship code, and more of my work is now about putting it to use for others: automating internal work, overhauling older apps, and getting codebases ready for AI agents.',
+    'Today I work with Claude every day. It is part of how I plan, write and ship code, and more of my work is now about putting it to use for others: building internal software factories, automating everyday work, overhauling older apps, and getting codebases ready for AI agents.',
     'I write the back end too when a project needs it, usually PHP or Python APIs on top of MySQL or Postgres. Setting up the repo and the build pipeline is part of the job for me, not somebody else\'s problem.',
   ],
   // What I work with, grouped and in the order shown.
