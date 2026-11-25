@@ -6,6 +6,24 @@ export const site = {
   // One plain sentence: what you do and for whom.
   intro: 'I build web and mobile apps — from the first sketch to the version people use every day.',
   location: 'Chennai, India', // leave empty to hide
+  // true shows the green "Available for new work" badge and the lines that go with it.
+  // Set to false when you're booked.
+  available: true,
+  // About me: one string per paragraph.
+  about: [
+    "I've been building software for a living since February 2019. Most of that time has gone into apps: hybrid ones with Ionic and Cordova, React Native, native Android, and the web side in React and Next.js.",
+    'I write the back end too when a project needs it, usually PHP or Python APIs on top of MySQL or Postgres. Setting up the repo and the build pipeline is part of the job for me, not somebody else\'s problem.',
+    'These days I build almost everything with Claude, and sometimes Codex. Years of doing it by hand first means I know what to ask for and what to check.',
+  ],
+  // What I work with, grouped and in the order shown.
+  stack: [
+    { group: 'Mobile', items: ['React Native', 'Ionic', 'Cordova', 'Native Android (Android Studio)'] },
+    { group: 'Web', items: ['React', 'Next.js'] },
+    { group: 'Back end', items: ['PHP', 'Python APIs', 'GraphQL'] },
+    { group: 'Databases', items: ['MySQL', 'PostgreSQL'] },
+    { group: 'Shipping', items: ['GitHub', 'GitLab', 'Jenkins'] },
+    { group: 'AI tools', items: ['Claude', 'Codex'] },
+  ],
   email: 'karnaumaidurai@gmail.com', // leave empty to hide the email link
   // Shown as icons under the intro, in this order (after email).
   links: [

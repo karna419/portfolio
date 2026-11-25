@@ -16,6 +16,8 @@
   --color-marigold: #e39b2d;
   --color-marigold-deep: #8a5200;
   --color-code: #dde3e9;
+  /* The "available" dot. The one green on the site. */
+  --color-go: #1c9a56;
 
   --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
@@ -30,6 +32,7 @@
   --color-rule: #283340;
   --color-marigold-deep: #f0b45a;
   --color-code: #1c2530;
+  --color-go: #3ecf7c;
 }
 
 @layer base {

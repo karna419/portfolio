@@ -1,10 +1,12 @@
-// Cloudflare Worker config. Workers Builds runs `npm run build`, then `npx wrangler deploy`.
+// Cloudflare Worker config. Workers Builds runs `npm ci`, then `npx wrangler deploy` (which builds first).
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   // Must match the Worker's name in the Cloudflare dashboard.
   "name": "portofolio",
   "main": "src/worker.ts",
   "compatibility_date": "2026-11-01",
+  // Cloudflare's own build command is empty, so wrangler builds the site before deploying.
+  "build": { "command": "npm run build" },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

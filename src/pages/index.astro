@@ -10,6 +10,15 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
 ---
 <Base>
   <section class="mx-auto max-w-6xl px-5 sm:px-8 pt-20 sm:pt-32 pb-16">
+    {site.available && (
+      <a href="#contact" class="mb-8 inline-flex items-center gap-2.5 rounded-full border border-rule bg-paper/70 px-4 py-1.5 text-sm font-medium hover:border-go transition-colors">
+        <span class="relative flex size-2.5" aria-hidden="true">
+          <span class="absolute inline-flex size-full rounded-full bg-go opacity-60 animate-ping motion-reduce:hidden"></span>
+          <span class="relative inline-flex size-2.5 rounded-full bg-go"></span>
+        </span>
+        Available for new work
+      </a>
+    )}
     <!-- Sized against the column width (cqi) so the name always spans it exactly. -->
     <div class="@container">
     <h1 class="font-display font-bold tracking-[-0.045em] leading-[0.9] text-[16.8cqi] whitespace-nowrap">
@@ -85,10 +94,35 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
     )}
   </section>
 
+  <section id="about" class="mx-auto max-w-6xl px-5 sm:px-8 py-16 scroll-mt-8">
+    <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight">About me</h2>
+
+    <div class="mt-8 grid gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,25rem)]">
+      <div class="max-w-[60ch] space-y-5 text-lg leading-relaxed">
+        {site.about.map((para) => <p>{para}</p>)}
+        {site.available && (
+          <p>
+            I have time for new work right now. If you have an app to build, or one that needs
+            fixing, <a class="link" href="#contact">write to me</a>.
+          </p>
+        )}
+      </div>
+
+      <dl class="border-t border-rule self-start">
+        {site.stack.map((row) => (
+          <div class="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-4 border-b border-rule py-3">
+            <dt class="text-sm text-muted pt-0.5">{row.group}</dt>
+            <dd>{row.items.join(', ')}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
   <section id="contact" class="mx-auto max-w-6xl px-5 sm:px-8 py-16 scroll-mt-8">
     <div class="rounded-2xl bg-night text-snow dark:ring-1 dark:ring-rule px-6 sm:px-12 py-12 sm:py-16">
       <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight max-w-[18ch]">Have something you want built?</h2>
-      <p class="mt-4 max-w-[55ch] text-snow/75">Tell me what you're working on. I usually reply within a couple of days.</p>
+      <p class="mt-4 max-w-[55ch] text-snow/75">{site.available && "I'm free to start now. "}Tell me what you're working on. I usually reply within a couple of days.</p>
       <div class="mt-8 flex flex-wrap gap-3">
         {site.email && (
           <a href={`mailto:${site.email}`} class="inline-block rounded-full bg-marigold text-night font-semibold px-6 py-3 hover:bg-snow transition-colors">Email me</a>
