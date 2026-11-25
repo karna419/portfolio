@@ -22,7 +22,7 @@ export const site = {
     { title: 'Automating internal work', text: 'The repetitive jobs a team does by hand, such as reports, data entry and hand-offs, turned into tools and agents that run on their own.' },
     { title: 'App revamps and overhauls', text: 'An ageing app reworked or rebuilt: a fresh design and current frameworks, with the same data and users carried across.' },
     { title: 'Agent-ready codebases', text: 'Old code migrated into a shape AI agents can work in: clear structure, written-down conventions and checks that catch mistakes.' },
-    { title: 'Design to live, connected', text: 'The tools for design, testing, preview and release wired together, so a change moves from idea to live without manual steps.' },
+    { title: 'From design to live, in one flow', text: 'Your design, testing, preview and release tools connected end to end, so every change is checked, previewed and shipped without anyone carrying it from one tool to the next.' },
   ],
   // About me: one string per paragraph.
   about: [
