@@ -13,7 +13,6 @@ export const site = {
   about: [
     "I've been building software for a living since February 2019. Most of that time has gone into apps: hybrid ones with Ionic and Cordova, React Native, native Android, and the web side in React and Next.js.",
     'I write the back end too when a project needs it, usually PHP or Python APIs on top of MySQL or Postgres. Setting up the repo and the build pipeline is part of the job for me, not somebody else\'s problem.',
-    'These days I build almost everything with Claude, and sometimes Codex. Years of doing it by hand first means I know what to ask for and what to check.',
   ],
   // What I work with, grouped and in the order shown.
   stack: [
