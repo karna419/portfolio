@@ -1,7 +1,8 @@
 ---
 // "Book a call": a sheet that opens from the Book a call button in the contact pane. The
-// visitor picks a day and a time that suits them, then leaves a name and email. Cal.com does
-// the calendar work through /api/slots and /api/book (see src/server/).
+// visitor picks a day and a time that suits them, then leaves a name and email. Times start in
+// Chennai time; the visitor can switch to their own or any other time zone. Cal.com does the
+// calendar work through /api/slots and /api/book (see src/server/).
 //
 // The button that opens it is any element with [data-book-open]. It stays hidden until the
 // API answers, so a missing Cal.com setup never shows a button that leads nowhere.
@@ -22,7 +23,11 @@
     <!-- Step 1 and 2: pick a day, pick a time. -->
     <div data-step="pick">
       <p class="mt-5 text-snow/75">Pick a day and a time that suits you.</p>
-      <div data-days class="mt-4 -mx-1 px-1 flex gap-2 overflow-x-auto pb-2 snap-x" role="listbox" aria-label="Day"></div>
+      <label class="mt-4 grid gap-1.5">
+        <span class="text-sm text-snow/70">Time zone</span>
+        <select data-tz class="field"></select>
+      </label>
+      <div data-days class="days mt-4 -mx-1 px-1 flex gap-2 overflow-x-auto pb-2 snap-x" role="listbox" aria-label="Day"></div>
       <div data-slots class="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-2" role="listbox" aria-label="Time"></div>
     </div>
 
@@ -145,6 +150,24 @@
     padding: 0.7rem 0.95rem;
     color: var(--color-snow);
   }
+  /* The time zone menu is a field with a chevron. Its list is drawn by the system, in dark. */
+  select.field {
+    appearance: none;
+    width: 100%;
+    padding-right: 2.5rem;
+    color-scheme: dark;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f5f6fa' stroke-opacity='.7' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.85rem center / 1rem,
+      linear-gradient(135deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.04));
+  }
+  select.field option { background: var(--color-night); color: var(--color-snow); }
+
+  /* The row of days scrolls sideways by touch, trackpad or wheel, with no scroll bar drawn. */
+  .days { scrollbar-width: none; }
+  .days::-webkit-scrollbar { display: none; }
+
   .field:focus { outline: none; border-color: var(--color-tint); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-tint) 30%, transparent); }
 
   @media (prefers-reduced-motion: reduce) {
@@ -164,21 +187,64 @@
   const status = $('[data-status]');
   const errorEl = $('[data-error]');
 
+  const tzEl = $<HTMLSelectElement>('[data-tz]');
+
+  // Times start in my time zone. The visitor can switch to theirs, or to any other.
   const HOME = 'Asia/Kolkata';
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-  const sameZone = new Intl.DateTimeFormat('en', { timeZone: tz, timeZoneName: 'longOffset' }).format(0) ===
-    new Intl.DateTimeFormat('en', { timeZone: HOME, timeZoneName: 'longOffset' }).format(0);
+  const HOME_NAME = 'Chennai';
+  const local = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const offset = (zone: string) =>
+    new Intl.DateTimeFormat('en', { timeZone: zone, timeZoneName: 'longOffset' })
+      .formatToParts(Date.now()).find((p) => p.type === 'timeZoneName')?.value ?? '';
+  const label = (zone: string) => zone.replace(/_/g, ' ');
 
-  const fmt = (opts: Intl.DateTimeFormatOptions, zone = tz) => new Intl.DateTimeFormat(undefined, { timeZone: zone, ...opts });
-  const timeLocal = fmt({ hour: 'numeric', minute: '2-digit' });
-  const timeHome = fmt({ hour: 'numeric', minute: '2-digit' }, HOME);
-  const dayName = fmt({ weekday: 'short' });
-  const dayNum = fmt({ day: 'numeric', month: 'short' });
-  const full = fmt({ weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+  let tz = HOME;
+  /** True when the chosen zone is on Chennai time, so there is no second time to show. */
+  let sameZone = true;
 
-  $('[data-tz-note]').textContent = sameZone
-    ? 'Times are in Chennai time.'
-    : `Times are in your time zone (${tz.replace(/_/g, ' ')}), with Chennai time below.`;
+  const fmt = (opts: Intl.DateTimeFormatOptions, zone: string) => new Intl.DateTimeFormat(undefined, { timeZone: zone, ...opts });
+  const clock: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit' };
+  const timeHome = fmt(clock, HOME);
+  let timeLocal = timeHome;
+  let dayName: Intl.DateTimeFormat;
+  let dayNum: Intl.DateTimeFormat;
+  let full: Intl.DateTimeFormat;
+
+  function setZone(zone: string) {
+    tz = zone;
+    sameZone = offset(tz) === offset(HOME);
+    timeLocal = fmt(clock, tz);
+    dayName = fmt({ weekday: 'short' }, tz);
+    dayNum = fmt({ day: 'numeric', month: 'short' }, tz);
+    full = fmt({ weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }, tz);
+    $('[data-tz-note]').textContent = sameZone
+      ? `Times are in ${HOME_NAME} time.`
+      : `Times are in ${label(tz)} time, with ${HOME_NAME} time below.`;
+  }
+  setZone(HOME);
+
+  // The menu: Chennai first, then the visitor's own zone, then every other zone.
+  const option = (zone: string, text: string) => new Option(`${text} (${offset(zone)})`, zone);
+  tzEl.append(option(HOME, `${HOME_NAME}, India`));
+  if (local !== HOME) tzEl.append(option(local, `Your time zone: ${label(local)}`));
+  let listed = false;
+  /** The full list is a few hundred zones, so it is built when the sheet first opens. */
+  function listZones() {
+    if (listed) return;
+    listed = true;
+    let zones: string[] = [];
+    try { zones = Intl.supportedValuesOf('timeZone'); } catch { /* older browsers keep the two above */ }
+    const group = document.createElement('optgroup');
+    group.label = 'All time zones';
+    group.append(...zones.filter((z) => z !== HOME && z !== local).map((z) => option(z, label(z))));
+    if (group.children.length) tzEl.append(group);
+  }
+
+  tzEl.addEventListener('change', async () => {
+    setZone(tzEl.value);
+    status.textContent = 'Loading times…';
+    if (!(await load())) status.textContent = 'Couldn’t load times. Try again in a moment.';
+  });
 
   let days: Record<string, string[]> = {};
   let chosen: string | null = null;
@@ -211,9 +277,11 @@
       const b = document.createElement('button');
       b.type = 'button';
       b.setAttribute('role', 'option');
-      b.className = 'slot px-3 py-2.5 text-left cursor-pointer';
-      b.innerHTML = `<span class="block font-semibold tabular-nums">${timeLocal.format(d)}</span>` +
-        (sameZone ? '' : `<span class="block text-xs text-snow/55 tabular-nums">${timeHome.format(d)} in Chennai</span>`);
+      // Small type on a phone, and never wrapped: three chips share a narrow row there.
+      b.className = 'slot px-2 sm:px-3 py-2.5 text-left whitespace-nowrap cursor-pointer';
+      b.title = sameZone ? '' : `${timeHome.format(d)} in ${HOME_NAME}`;
+      b.innerHTML = `<span class="block text-sm sm:text-base font-semibold tabular-nums">${timeLocal.format(d)}</span>` +
+        (sameZone ? '' : `<span class="block text-[0.6875rem] sm:text-xs text-snow/55 tabular-nums">${timeHome.format(d)}<span class="max-sm:hidden"> in ${HOME_NAME}</span></span>`);
       b.onclick = () => choose(iso);
       return b;
     }));
@@ -222,7 +290,7 @@
   function choose(iso: string) {
     chosen = iso;
     const d = new Date(iso);
-    $('[data-chosen]').textContent = full.format(d) + (sameZone ? '' : ` · ${timeHome.format(d)} in Chennai`);
+    $('[data-chosen]').textContent = full.format(d) + (sameZone ? '' : ` · ${timeHome.format(d)} in ${HOME_NAME}`);
     errorEl.textContent = '';
     show('form');
     form.querySelector<HTMLInputElement>('input[name="name"]')!.focus();
@@ -278,13 +346,18 @@
 
   /** Fetch free times. Returns false when booking isn't available at all. */
   async function load() {
+    const zone = tz;
+    let fresh: Record<string, string[]>;
     try {
-      const res = await fetch(`/api/slots?timeZone=${encodeURIComponent(tz)}`);
+      const res = await fetch(`/api/slots?timeZone=${encodeURIComponent(zone)}`);
       if (!res.ok) throw new Error(String(res.status));
-      days = (await res.json()).days ?? {};
+      fresh = (await res.json()).days ?? {};
     } catch {
       return false;
     }
+    // The visitor switched zones again while this was loading: the later answer wins.
+    if (zone !== tz) return true;
+    days = fresh;
     loadedAt = Date.now();
     const first = Object.keys(days)[0];
     if (!first) {
@@ -302,11 +375,19 @@
   function open() {
     if (sheet.open) return;
     if (!booked) show('pick');
+    listZones();
     sheet.showModal();
     // Free times go stale: refresh them if the page has been open a while.
     if (!booked && Date.now() - loadedAt > 60_000) load();
   }
   const close = () => sheet.close();
+
+  // A mouse wheel moves the row of days sideways, since it has no scroll bar to drag.
+  daysEl.addEventListener('wheel', (e) => {
+    if (e.deltaX || !e.deltaY || daysEl.scrollWidth <= daysEl.clientWidth) return;
+    e.preventDefault();
+    daysEl.scrollLeft += e.deltaY;
+  }, { passive: false });
 
   openers.forEach((b) => b.addEventListener('click', open));
   $('[data-close]').addEventListener('click', close);
