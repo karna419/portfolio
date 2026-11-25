@@ -21,8 +21,7 @@ export const site = {
     { group: 'Web', items: ['React', 'Next.js'] },
     { group: 'Back end', items: ['PHP', 'Python APIs', 'GraphQL'] },
     { group: 'Databases', items: ['MySQL', 'PostgreSQL'] },
-    { group: 'Shipping', items: ['GitHub', 'GitLab', 'Jenkins'] },
-    { group: 'AI tools', items: ['Claude', 'Codex'] },
+    { group: 'Shipping', items: ['AWS', 'GitHub', 'GitLab', 'Jenkins'] },
   ],
   email: 'karnaumaidurai@gmail.com', // leave empty to hide the email link
   // Shown as icons under the intro, in this order (after email).
