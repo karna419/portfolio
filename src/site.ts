@@ -3,6 +3,8 @@ export type IconName = 'upwork' | 'fiverr' | 'linkedin' | 'github' | 'apple' | '
 
 export const site = {
   name: 'Karunagaran',
+  // Your title, shown under the name and in the browser tab. Leave empty to hide.
+  role: 'AI engineer',
   // One plain sentence: what you do and for whom.
   intro: 'I build web and mobile apps — from the first sketch to the version people use every day.',
   location: 'Chennai, India', // leave empty to hide
