@@ -5,6 +5,7 @@ year: 2026
 involvement: contributor
 stack: [React Native, Expo, iOS, Android]
 icon: /work/eurostruct-field-icon.png
+appStore: https://apps.apple.com/app/eurostruct/id6837799153
 ---
 
 The Eurostruct app puts the paperwork of a construction site on the phone of the person
