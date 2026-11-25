@@ -83,6 +83,20 @@ const showActivity = site.showActivity && (!activity.demo || import.meta.env.DEV
     {showActivity && <Activity />}
   </section>
 
+  {site.services.length > 0 && (
+    <section id="services" class="mx-auto max-w-6xl px-5 sm:px-8 py-12 scroll-mt-20">
+      <h2 class="text-3xl sm:text-4xl font-bold">What I do</h2>
+      <ul class="mt-6 grid gap-5 sm:grid-cols-2">
+        {site.services.map((s) => (
+          <li class="glass pane p-6 sm:p-7">
+            <h3 class="text-xl font-semibold">{s.title}</h3>
+            <p class="mt-2 text-muted leading-relaxed">{s.text}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
   <section id="about" class="mx-auto max-w-6xl px-5 sm:px-8 py-12 scroll-mt-20">
     <h2 class="text-3xl sm:text-4xl font-bold">About me</h2>
 
@@ -91,8 +105,8 @@ const showActivity = site.showActivity && (!activity.demo || import.meta.env.DEV
         {site.about.map((para) => <p>{para}</p>)}
         {site.available && (
           <p>
-            I have time for new work right now. If you have an app to build, or one that needs
-            fixing, <a class="link" href="#contact">write to me</a>.
+            I have time for new work right now. If you have an app to build or overhaul, or work
+            you want automated, <a class="link" href="#contact">write to me</a>.
           </p>
         )}
       </div>
