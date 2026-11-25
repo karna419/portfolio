@@ -9,6 +9,10 @@ export const site = {
   // true shows the green "Available for new work" badge and the lines that go with it.
   // Set to false when you're booked.
   available: true,
+  // true shows the "Shipping lately" block (commit calendar and feed) under the work list.
+  // It is built but switched off. Its data is still made up (src/data/activity.ts), and made-up
+  // data never shows on the live site even when this is true.
+  showActivity: false,
   // About me: one string per paragraph.
   about: [
     "I've been building software for a living since February 2019. Most of that time has gone into apps: hybrid ones with Ionic and Cordova, React Native, native Android, and the web side in React and Next.js.",

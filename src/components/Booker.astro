@@ -20,7 +20,7 @@
   <form data-step="form" class="mt-6 grid gap-4 max-w-xl" hidden novalidate>
     <p class="text-lg">
       <span data-chosen class="font-semibold"></span>
-      <button type="button" data-back class="ml-2 text-sm text-snow/60 underline decoration-marigold decoration-2 underline-offset-4 hover:text-snow cursor-pointer">change</button>
+      <button type="button" data-back class="ml-2 text-sm text-snow/60 underline decoration-tint decoration-2 underline-offset-4 hover:text-snow cursor-pointer">change</button>
     </p>
     <label class="grid gap-1.5">
       <span class="text-sm text-snow/70">Your name</span>
@@ -38,15 +38,15 @@
     <input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute -left-[9999px] h-0 w-0 opacity-0" />
     <div class="flex flex-wrap items-center gap-4">
       <button type="submit" class="btn btn-tint disabled:opacity-60 cursor-pointer">Confirm the call</button>
-      <p data-error class="text-sm text-marigold" role="alert"></p>
+      <p data-error class="text-sm text-tint" role="alert"></p>
     </div>
   </form>
 
   <!-- Step 4: done. -->
   <div data-step="done" class="mt-6" hidden>
-    <p class="font-display text-2xl sm:text-3xl font-semibold">You're booked. <span class="text-marigold">Talk soon.</span></p>
+    <p class="font-display text-2xl sm:text-3xl font-semibold">You're booked. <span class="text-tint">Talk soon.</span></p>
     <p class="mt-3 text-snow/75" data-done-text></p>
-    <a data-meeting class="mt-4 inline-block underline decoration-marigold decoration-2 underline-offset-4" target="_blank" rel="noopener" hidden>Join link</a>
+    <a data-meeting class="mt-4 inline-block underline decoration-tint decoration-2 underline-offset-4" target="_blank" rel="noopener" hidden>Join link</a>
   </div>
 
   <p data-status class="mt-4 text-sm text-snow/60" aria-live="polite"></p>
@@ -62,7 +62,7 @@
     padding: 0.7rem 0.95rem;
     color: var(--color-snow);
   }
-  .field:focus { outline: none; border-color: var(--color-marigold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-marigold) 30%, transparent); }
+  .field:focus { outline: none; border-color: var(--color-tint); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-tint) 30%, transparent); }
 </style>
 
 <script>

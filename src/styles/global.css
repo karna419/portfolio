@@ -4,19 +4,23 @@
 
 /* The site is built like a native iOS app: a soft wallpaper that stays put, and panes of
    translucent glass that the content sits on. Type is the system font, so on Apple devices
-   it is set in San Francisco. Amber is the app's tint colour. */
+   it is set in San Francisco. The tint is an aqua that runs to blue. */
 @theme {
   /* Snow never flips with the theme: it is the text colour on the dark contact pane. */
   --color-snow: #f5f6fa;
-  /* Night is the dark contact pane and the text on amber. */
+  /* Night is the dark contact pane. */
   --color-night: #0d1222;
 
   --color-paper: #eef2f9;
   --color-ink: #0b0d14;
   --color-muted: #545a6b;
   --color-rule: #3c3c4329;
-  --color-marigold: #ff9500;
-  --color-marigold-deep: #a85a00;
+  --color-tint: #0a7f90;
+  --color-tint-deep: #086572;
+  /* Filled controls use the tint as a gradient, with white text, in both appearances. */
+  --tint-fill: linear-gradient(135deg, #0a7f90, #1d5fd0);
+  --on-tint: #fff;
+  --tint-shadow: rgb(16 110 170 / 0.7);
   --color-code: #0b0d1412;
   /* The "available" dot. */
   --color-go: #1fa64a;
@@ -33,8 +37,8 @@
   --color-ink: #f5f6fa;
   --color-muted: #a6abba;
   --color-rule: #ffffff24;
-  --color-marigold: #ff9f0a;
-  --color-marigold-deep: #ffb340;
+  --color-tint: #5fd8e6;
+  --color-tint-deep: #96e8f2;
   --color-code: #ffffff17;
   --color-go: #30d158;
 }
@@ -49,9 +53,9 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  ::selection { background: var(--color-marigold); color: var(--color-night); }
+  ::selection { background: var(--color-tint); color: var(--color-paper); }
   :focus-visible {
-    outline: 3px solid var(--color-marigold);
+    outline: 3px solid var(--color-tint);
     outline-offset: 3px;
     border-radius: 6px;
   }
@@ -124,8 +128,10 @@
     inset 0 -1px 0 rgb(255 255 255 / 0.04),
     0 20px 50px -18px rgb(0 0 0 / 0.7);
 }
-/* Smoked glass: the contact pane, dark in both appearances. */
+/* Smoked glass: the contact pane, dark in both appearances, so it always uses the light tint. */
 .glass.glass-dark, .dark .glass.glass-dark {
+  --color-tint: #5fd8e6;
+  --color-tint-deep: #96e8f2;
   background:
     radial-gradient(26rem circle at var(--mx) var(--my), rgb(255 255 255 / calc(var(--lit) * 0.22)), transparent 62%),
     linear-gradient(135deg, rgb(13 18 34 / 0.84), rgb(13 18 34 / 0.7));
@@ -161,13 +167,13 @@
     transition: transform 160ms cubic-bezier(.3, 1.6, .5, 1), filter 160ms ease;
   }
   .btn:active { transform: scale(0.96); }
-  .btn-tint { background: var(--color-marigold); color: var(--color-night); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45), 0 10px 24px -10px var(--color-marigold); }
+  .btn-tint { background: var(--tint-fill); color: var(--on-tint); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 10px 24px -10px var(--tint-shadow); }
   .btn-tint:hover { filter: brightness(1.07); }
 
-  /* Underlined links: ink text, amber underline that thickens on hover. */
+  /* Underlined links: ink text, tinted underline that thickens on hover. */
   .link {
     text-decoration-line: underline;
-    text-decoration-color: var(--color-marigold);
+    text-decoration-color: var(--color-tint);
     text-decoration-thickness: 2px;
     text-underline-offset: 4px;
     transition: text-decoration-thickness 120ms ease;
@@ -188,7 +194,7 @@
   .prose-work h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.8em; }
   .prose-work a {
     text-decoration-line: underline;
-    text-decoration-color: var(--color-marigold);
+    text-decoration-color: var(--color-tint);
     text-decoration-thickness: 2px;
     text-underline-offset: 4px;
   }
@@ -198,7 +204,7 @@
   .prose-work code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-code); padding: 0.1em 0.35em; border-radius: 6px; }
   .prose-work pre { background: var(--color-night); color: var(--color-snow); padding: 1rem 1.25rem; border-radius: 14px; overflow-x: auto; }
   .prose-work pre code { background: none; padding: 0; }
-  .prose-work blockquote { border-left: 4px solid var(--color-marigold); padding-left: 1rem; color: var(--color-muted); }
+  .prose-work blockquote { border-left: 4px solid var(--color-tint); padding-left: 1rem; color: var(--color-muted); }
 }
 
 /* ---- Tab bar --------------------------------------------------------------------------
@@ -247,20 +253,20 @@
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
   transition: transform 160ms cubic-bezier(.3, 1.6, .5, 1), background-color 150ms ease, border-color 150ms ease;
 }
-.slot:hover { border-color: var(--color-marigold); background: rgb(255 255 255 / 0.14); }
+.slot:hover { border-color: var(--color-tint); background: rgb(255 255 255 / 0.14); }
 .slot:active { transform: scale(0.95); }
 .slot.is-on {
-  border-color: var(--color-marigold);
-  background: var(--color-marigold);
-  color: var(--color-night);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45), 0 10px 22px -10px var(--color-marigold);
+  border-color: var(--color-tint);
+  background: var(--tint-fill);
+  color: var(--on-tint);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 10px 22px -10px var(--tint-shadow);
 }
 @media (prefers-reduced-motion: reduce) { .slot { transition: none; } }
 
 /* Smooth colour change when switching appearance (added only around the switch). */
 .theme-switching, .theme-switching * { transition: background-color 250ms ease, color 250ms ease, border-color 250ms ease !important; }
 
-/* The name: ink text with a soft amber glow that follows the pointer inside the letters,
+/* The name: ink text with a soft tinted glow that follows the pointer inside the letters,
    and one slow sheen across it on load. Plain CSS gradients clipped to the text. */
 @property --name-r { syntax: '<length>'; inherits: false; initial-value: 0px; }
 @property --name-sweep { syntax: '<percentage>'; inherits: false; initial-value: -30%; }
@@ -271,10 +277,10 @@
     color: transparent;
     background:
       radial-gradient(circle var(--name-r) at var(--x) var(--y),
-        var(--color-marigold), color-mix(in srgb, var(--color-marigold) 45%, var(--color-ink)) 55%, transparent),
+        var(--color-tint), color-mix(in srgb, var(--color-tint) 45%, var(--color-ink)) 55%, transparent),
       linear-gradient(100deg,
         transparent calc(var(--name-sweep) - 10%),
-        color-mix(in srgb, var(--color-marigold) 60%, var(--color-ink)) var(--name-sweep),
+        color-mix(in srgb, var(--color-tint) 60%, var(--color-ink)) var(--name-sweep),
         transparent calc(var(--name-sweep) + 10%)),
       linear-gradient(var(--color-ink), var(--color-ink));
     -webkit-background-clip: text;
@@ -283,7 +289,7 @@
     animation: name-sweep 1.8s cubic-bezier(.4,0,.2,1) 700ms both;
   }
   .name-sheen.is-lit { --name-r: 20cqi; transition-duration: 350ms; }
-  .name-sheen::selection { color: var(--color-night); }
+  .name-sheen::selection { color: var(--color-paper); }
 }
 @keyframes name-sweep { from { --name-sweep: -30%; } to { --name-sweep: 130%; } }
 
@@ -294,8 +300,10 @@
   .link { transition: none; }
 }
 
-/* The K mark in the header: its amber stroke nudges forward when you point at it. */
+/* The K mark in the header: its tinted stroke nudges forward when you point at it. */
 .logo .logo-arm { transition: transform 260ms cubic-bezier(.3, 1.6, .5, 1); }
+/* On dark glass the stroke is a paler aqua, so the K stays easy to read. */
+.dark .logo .logo-arm { stroke: var(--color-tint-deep); }
 .logo:hover .logo-arm { transform: translateX(3px); }
 .logo:active { scale: 0.94; }
 @media (prefers-reduced-motion: reduce) { .logo .logo-arm { transition: none; } }

@@ -1,0 +1,147 @@
+---
+// "Shipping lately": a calendar of commits and a short feed of what went out, with the
+// specifics left off. Everything shown comes from src/data/activity.ts, which holds only
+// counts, dates and generic descriptions (see the privacy rule at the top of that file).
+import { activity } from '../data/activity';
+
+const { days, events, demo } = activity;
+
+// ---- the calendar: one column per week (Monday first), newest week on the right ---------
+const WEEKS = 20;
+const byDate = new Map(days.map((d) => [d.date, d.count]));
+const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const monday = new Date(today);
+monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+
+const max = Math.max(1, ...days.map((d) => d.count));
+// Four shades: a day's shade is its count against the busiest day.
+const level = (n: number) => (n === 0 ? 0 : Math.min(4, Math.ceil((n / max) * 4)));
+const monthName = new Intl.DateTimeFormat('en', { month: 'short' });
+const dayLabel = new Intl.DateTimeFormat('en', { weekday: 'short', day: 'numeric', month: 'short' });
+
+const weeks = Array.from({ length: WEEKS }, (_, w) => {
+  const start = new Date(monday);
+  start.setDate(monday.getDate() - (WEEKS - 1 - w) * 7);
+  const cells = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    if (d > today) return null;
+    const count = byDate.get(iso(d)) ?? 0;
+    return { count, level: level(count), label: `${dayLabel.format(d)}: ${count === 0 ? 'nothing pushed' : `${count} commit${count === 1 ? '' : 's'}`}` };
+  });
+  // Name the month above the first week that starts in it.
+  const prev = new Date(start);
+  prev.setDate(start.getDate() - 7);
+  const month = w === 0 || prev.getMonth() !== start.getMonth() ? monthName.format(start) : '';
+  return { cells, month };
+});
+
+// ---- the one-line summary -----------------------------------------------------------
+const since = (n: number) => iso(new Date(today.getTime() - (n - 1) * 86_400_000));
+const last7 = days.filter((d) => d.date >= since(7));
+const last30 = days.filter((d) => d.date >= since(30));
+const commits7 = last7.reduce((sum, d) => sum + d.count, 0);
+const active30 = last30.filter((d) => d.count > 0).length;
+const total = days.reduce((sum, d) => sum + d.count, 0);
+
+const shortDate = new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short' });
+---
+<div class="mt-14">
+  <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+    <h2 class="text-3xl sm:text-4xl font-bold">Shipping lately</h2>
+    {demo && <span class="glass capsule px-3 h-7 inline-flex items-center text-xs font-semibold text-tint-deep">Demo data, local only</span>}
+  </div>
+  <p class="mt-3 max-w-[60ch] text-muted">
+    Commits and releases across what I'm working on right now. Most of it is client work, so
+    names and details stay private.
+  </p>
+
+  <div class="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] items-start">
+    <!-- Calendar -->
+    <div class="glass pane p-5 sm:p-7">
+      <p class="text-lg leading-snug text-balance">
+        <strong class="font-semibold">{commits7} commits</strong> in the last 7 days, and something pushed on{' '}
+        <strong class="font-semibold">{active30} of the last 30</strong>.
+      </p>
+
+      <div class="cal mt-6" role="img" aria-label={`Commit calendar for the last ${WEEKS} weeks: ${total} commits in total.`}>
+        {weeks.map((week, w) => (
+          <div class:list={['week', { early: w < WEEKS - 12 }]} aria-hidden="true">
+            <span class="month">{week.month}</span>
+            {week.cells.map((cell) => (
+              cell ? <i class={`cell l${cell.level}`} title={cell.label}></i> : <i class="cell future"></i>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-4 flex items-center justify-between gap-4 text-xs text-muted">
+        <span>{total} commits in {WEEKS} weeks</span>
+        <span class="flex items-center gap-1.5" aria-hidden="true">
+          Less
+          <i class="cell key l0"></i><i class="cell key l1"></i><i class="cell key l2"></i><i class="cell key l3"></i><i class="cell key l4"></i>
+          More
+        </span>
+      </div>
+    </div>
+
+    <!-- Feed -->
+    <ul class="glass pane overflow-hidden divide-y divide-rule">
+      {events.map((e) => (
+        <li class="flex items-center gap-3.5 px-4 sm:px-5 py-3.5">
+          <span class:list={['badge', e.kind]} aria-hidden="true">
+            {e.kind === 'release' ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14" /></svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5" /><path d="M3 12h5.5M15.5 12H21" /></svg>
+            )}
+          </span>
+          <span class="min-w-0 flex-1 leading-snug">
+            <span class="block font-medium">
+              {e.kind === 'release' ? e.title : `Pushed ${e.count} commit${e.count === 1 ? '' : 's'}`}
+            </span>
+            <span class="block text-sm text-muted">
+              {e.kind === 'release' ? 'for' : 'to'} {e.project}{e.platforms?.length ? ` (${e.platforms.join(', ')})` : ''}
+            </span>
+          </span>
+          <time class="shrink-0 text-sm text-muted tabular-nums" datetime={e.at} data-relative>{shortDate.format(new Date(e.at))}</time>
+        </li>
+      ))}
+      {events.length === 0 && <li class="px-5 py-4 text-muted">Nothing to show yet.</li>}
+    </ul>
+  </div>
+</div>
+
+<style>
+  /* One column per week. On a phone only the latest twelve weeks fit. */
+  .cal { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; }
+  .week { display: grid; grid-template-rows: 1rem repeat(7, auto); gap: 4px; }
+  .month { font-size: 0.7rem; line-height: 1rem; color: var(--color-muted); white-space: nowrap; }
+  .cell { display: block; aspect-ratio: 1; border-radius: 28%; background: var(--empty); }
+  .cell.future { visibility: hidden; }
+  .cell.key { width: 0.8rem; }
+  .cal, .cell.key { --empty: rgb(11 13 20 / 0.08); }
+  :global(.dark) .cal, :global(.dark) .cell.key { --empty: rgb(255 255 255 / 0.09); }
+  .l1 { background: color-mix(in srgb, var(--color-tint) 28%, var(--empty)); }
+  .l2 { background: color-mix(in srgb, var(--color-tint) 52%, var(--empty)); }
+  .l3 { background: color-mix(in srgb, var(--color-tint) 76%, var(--empty)); }
+  .l4 { background: var(--color-tint); box-shadow: 0 0 10px -2px var(--color-tint); }
+  @media (max-width: 639px) { .week.early { display: none; } }
+
+  .badge { display: grid; place-items: center; flex: none; width: 2.25rem; height: 2.25rem; border-radius: 28%; background: color-mix(in srgb, var(--color-tint) 16%, transparent); color: var(--color-tint-deep); }
+  .badge.release { background: var(--tint-fill); color: var(--on-tint); }
+  .badge svg { width: 1.15rem; height: 1.15rem; }
+</style>
+
+<script>
+  // Dates in the feed read as "2 hours ago" once the page is up.
+  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  document.querySelectorAll<HTMLTimeElement>('time[data-relative]').forEach((el) => {
+    const hours = (new Date(el.dateTime).getTime() - Date.now()) / 3_600_000;
+    if (Number.isNaN(hours)) return;
+    el.title = new Date(el.dateTime).toLocaleString();
+    el.textContent = Math.abs(hours) < 1 ? 'just now' : Math.abs(hours) < 24 ? rtf.format(Math.round(hours), 'hour') : rtf.format(Math.round(hours / 24), 'day');
+  });
+</script>

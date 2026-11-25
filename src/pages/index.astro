@@ -5,9 +5,13 @@ import { getWork } from '../lib';
 import Icon from '../components/Icon.astro';
 import Booker from '../components/Booker.astro';
 import Phone from '../components/Phone.astro';
+import Activity from '../components/Activity.astro';
+import { activity } from '../data/activity';
 
 const work = await getWork();
 const hire = site.links.filter((l) => site.hire.includes(l.label));
+// Off unless switched on in site.ts. While its data is made up, it is for the dev server only.
+const showActivity = site.showActivity && (!activity.demo || import.meta.env.DEV);
 ---
 <Base>
   <section class="mx-auto max-w-6xl px-5 sm:px-8 pt-8 sm:pt-14 pb-12">
@@ -61,7 +65,7 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
               )}
               <span class="min-w-0 flex-1">
                 <span class="font-display text-xl sm:text-[1.35rem] font-semibold tracking-tight">{p.data.title}</span>
-                {p.data.draft && <span class="ml-2 text-sm text-marigold-deep">(draft, hidden on the live site)</span>}
+                {p.data.draft && <span class="ml-2 text-sm text-tint-deep">(draft, hidden on the live site)</span>}
                 <span class="block mt-0.5 text-muted text-[0.97rem] leading-snug max-w-[62ch]">{p.data.summary}</span>
               </span>
               <span class="hidden md:block shrink-0 text-right text-sm text-muted leading-snug">
@@ -74,6 +78,8 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
         ))}
       </ul>
     )}
+
+    {showActivity && <Activity />}
   </section>
 
   <section id="about" class="mx-auto max-w-6xl px-5 sm:px-8 py-12 scroll-mt-20">

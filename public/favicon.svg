@@ -4,12 +4,16 @@
       <stop offset="0" stop-color="#1b2440"/>
       <stop offset="1" stop-color="#0a0e1c"/>
     </linearGradient>
+    <linearGradient id="tint" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5fd8e6"/>
+      <stop offset="1" stop-color="#5a9bff"/>
+    </linearGradient>
   </defs>
   <rect width="64" height="64" rx="15" fill="url(#tile)"/>
-  <!-- A slanted, handwritten K: a white stem and one amber stroke for the arm and leg.
+  <!-- A slanted, handwritten K: a white stem and one aqua-to-blue stroke for the arm and leg.
        Same mark as the one in the site header. -->
   <g fill="none" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M25 13C23.5 25 21 38 17.5 51" stroke="#f5f6fa"/>
-    <path d="M48 14C41 22.5 32 29.5 23 33.5C31 35.5 37.5 42.5 42.5 51.5" stroke="#ff9f0a"/>
+    <path d="M48 14C41 22.5 32 29.5 23 33.5C31 35.5 37.5 42.5 42.5 51.5" stroke="url(#tint)"/>
   </g>
 </svg>
