@@ -223,22 +223,26 @@
   }
   setZone(HOME);
 
-  // The menu: Chennai first, then the visitor's own zone, then every other zone.
-  const option = (zone: string, text: string) => new Option(`${text} (${offset(zone)})`, zone);
+  // The menu is short on purpose: Chennai, the visitor's own zone, then a few well-known cities.
+  const CITIES: [zone: string, name: string][] = [
+    ['America/Los_Angeles', 'Los Angeles'],
+    ['America/Chicago', 'Chicago'],
+    ['America/New_York', 'New York'],
+    ['America/Sao_Paulo', 'São Paulo'],
+    ['Europe/London', 'London'],
+    ['Europe/Berlin', 'Berlin'],
+    ['Asia/Dubai', 'Dubai'],
+    ['Asia/Singapore', 'Singapore'],
+    ['Asia/Tokyo', 'Tokyo'],
+    ['Australia/Sydney', 'Sydney'],
+  ];
+  const gmt = (zone: string) =>
+    new Intl.DateTimeFormat('en', { timeZone: zone, timeZoneName: 'shortOffset' })
+      .formatToParts(Date.now()).find((p) => p.type === 'timeZoneName')?.value ?? '';
+  const option = (zone: string, text: string) => new Option(`${text} (${gmt(zone)})`, zone);
   tzEl.append(option(HOME, `${HOME_NAME}, India`));
-  if (local !== HOME) tzEl.append(option(local, `Your time zone: ${label(local)}`));
-  let listed = false;
-  /** The full list is a few hundred zones, so it is built when the sheet first opens. */
-  function listZones() {
-    if (listed) return;
-    listed = true;
-    let zones: string[] = [];
-    try { zones = Intl.supportedValuesOf('timeZone'); } catch { /* older browsers keep the two above */ }
-    const group = document.createElement('optgroup');
-    group.label = 'All time zones';
-    group.append(...zones.filter((z) => z !== HOME && z !== local).map((z) => option(z, label(z))));
-    if (group.children.length) tzEl.append(group);
-  }
+  if (local !== HOME) tzEl.append(option(local, `Your time: ${label(local.split('/').pop()!)}`));
+  tzEl.append(...CITIES.filter(([zone]) => zone !== HOME && zone !== local).map(([zone, name]) => option(zone, name)));
 
   tzEl.addEventListener('change', async () => {
     setZone(tzEl.value);
@@ -375,7 +379,6 @@
   function open() {
     if (sheet.open) return;
     if (!booked) show('pick');
-    listZones();
     sheet.showModal();
     // Free times go stale: refresh them if the page has been open a while.
     if (!booked && Date.now() - loadedAt > 60_000) load();
