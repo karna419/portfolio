@@ -15,6 +15,7 @@ const d = entry.data;
 <Base title={d.title} description={d.summary}>
   <article class="mx-auto max-w-6xl px-5 sm:px-8 pt-16 sm:pt-24 pb-16">
     <a href="/#work" class="link text-sm">Back to all work</a>
+    {d.icon && <img src={d.icon} alt={`${d.title} app icon`} width="96" height="96" class="mt-8 size-24 rounded-[22%] border border-rule" />}
     <h1 class="mt-6 font-bold tracking-[-0.03em] text-[clamp(2.5rem,7vw,5rem)] max-w-[20ch]">{d.title}</h1>
     <p class="mt-5 text-xl sm:text-2xl leading-snug max-w-[44ch] text-balance">{d.summary}</p>
 
@@ -22,10 +23,11 @@ const d = entry.data;
       <div><dt class="text-muted">Year</dt><dd class="tabular-nums">{d.year}</dd></div>
       {d.role && <div><dt class="text-muted">Role</dt><dd>{d.role}</dd></div>}
       {d.stack.length > 0 && <div><dt class="text-muted">Built with</dt><dd>{d.stack.join(', ')}</dd></div>}
-      {(d.url || d.repo) && (
+      {(d.url || d.repo || d.appStore) && (
         <div>
           <dt class="text-muted">Links</dt>
           <dd class="flex flex-wrap gap-x-4">
+            {d.appStore && <a class="link" href={d.appStore}>App Store</a>}
             {d.url && <a class="link" href={d.url}>Live site</a>}
             {d.repo && <a class="link" href={d.repo}>Code</a>}
           </dd>

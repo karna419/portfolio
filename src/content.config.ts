@@ -12,6 +12,9 @@ const work = defineCollection({
     stack: z.array(z.string()).default([]),
     url: z.string().url().optional(),
     repo: z.string().url().optional(),
+    appStore: z.string().url().optional(),
+    // Square app icon, e.g. '/work/my-app-icon.png'.
+    icon: z.string().optional(),
     // Drafts show up while you run `npm run dev`, never on the live site.
     draft: z.boolean().default(false),
   }),

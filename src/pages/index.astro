@@ -42,17 +42,22 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
           <li class="border-b border-rule">
             <a
               href={`/work/${p.id}/`}
-              class="group grid gap-x-8 gap-y-1 py-6 sm:grid-cols-[5rem_minmax(0,1fr)_minmax(0,16rem)] items-baseline"
+              class="group grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 sm:gap-x-8 gap-y-1 py-6 sm:grid-cols-[5rem_minmax(0,1fr)_minmax(0,16rem)] items-baseline"
             >
-              <span class="text-muted tabular-nums">{p.data.year}</span>
-              <span>
+              <span class="text-muted tabular-nums col-span-2 sm:col-span-1">{p.data.year}</span>
+              <span class="col-span-2 sm:col-span-1 flex gap-4 items-start">
+                {p.data.icon && (
+                  <img src={p.data.icon} alt="" width="56" height="56" loading="lazy" class="size-14 shrink-0 rounded-[22%] border border-rule" />
+                )}
+                <span>
                 <span class="font-display text-2xl font-semibold tracking-tight underline decoration-transparent decoration-2 underline-offset-4 group-hover:decoration-marigold transition-colors">
                   {p.data.title}
                 </span>
                 {p.data.draft && <span class="ml-2 text-sm text-marigold-deep">(draft — hidden on the live site)</span>}
                 <span class="block mt-1 text-muted max-w-[60ch]">{p.data.summary}</span>
+                </span>
               </span>
-              <span class="text-sm text-muted sm:text-right">{p.data.stack.join(', ')}</span>
+              <span class="col-span-2 sm:col-span-1 text-sm text-muted sm:text-right">{p.data.stack.join(', ')}</span>
             </a>
           </li>
         ))}
