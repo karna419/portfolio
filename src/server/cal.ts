@@ -6,7 +6,7 @@ export interface Env {
   CAL_API_KEY?: string;
   /** Your Cal.com username, e.g. "karunagaran". */
   CAL_USERNAME?: string;
-  /** Slug of the 20-minute event type. */
+  /** Slug of the 15-minute event type. */
   CAL_EVENT_SLUG?: string;
   /** Only for local testing against a mock server. */
   CAL_API_BASE?: string;
@@ -29,7 +29,7 @@ export function config(env: Env) {
   return {
     key: env.CAL_API_KEY,
     username: env.CAL_USERNAME,
-    slug: env.CAL_EVENT_SLUG || '20min',
+    slug: env.CAL_EVENT_SLUG || '15min',
     base: (env.CAL_API_BASE || 'https://api.cal.com').replace(/\/$/, ''),
   };
 }

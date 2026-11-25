@@ -37,17 +37,17 @@ The site is the `portofolio` Worker: every push to `main` builds (`npm run build
 
 ## "Book a call" (Cal.com)
 
-The contact panel has a 20-minute call picker drawn by the site. Cal.com does the calendar work
+The contact panel has a 15-minute call picker drawn by the site. Cal.com does the calendar work
 (free/busy, invites, meeting link) behind a small Worker route (`src/worker.ts` → `src/server/api/`),
 so the API key never reaches the browser. Until it's configured, the picker stays hidden.
 
 1. Make a free account at cal.com, connect your calendar and a video app (Google Meet or Zoom).
-2. Create an event type: 20 minutes, slug `20min`, with your working hours.
+2. Create an event type: 15 minutes, slug `15min`, with your working hours.
 3. Settings → Security → create an API key.
 4. Cloudflare → Workers & Pages → **portofolio → Settings → Variables and Secrets**:
    - `CAL_API_KEY` (type **Secret**): the key from step 3
    - `CAL_USERNAME`: your Cal.com username
-   - `CAL_EVENT_SLUG`: only if the slug isn't `20min`
+   - `CAL_EVENT_SLUG`: only if the slug isn't `15min`
    Saving them redeploys the Worker; the picker appears once `/api/slots` answers.
 
 Test locally with `npm run build && npx wrangler dev --var CAL_API_KEY:... --var CAL_USERNAME:...`.
