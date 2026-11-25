@@ -1,0 +1,35 @@
+---
+import { siUpwork, siGithub } from 'simple-icons';
+import type { IconName } from '../site';
+
+interface Props { name: IconName; class?: string }
+const { name, class: className = 'size-5' } = Astro.props;
+// The Fiverr icon is used more than once per page, so each copy needs its own mask id.
+const maskId = `fiverr-${Math.random().toString(36).slice(2, 8)}`;
+
+// simple-icons dropped LinkedIn, so its path is kept here.
+const linkedin =
+  'M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z';
+
+const paths: Record<Exclude<IconName, 'fiverr'>, string> = {
+  upwork: siUpwork.path,
+  github: siGithub.path,
+  linkedin,
+};
+---
+<svg viewBox="0 0 24 24" class={className} fill="currentColor" aria-hidden="true" focusable="false">
+  {name === 'fiverr' ? (
+    // simple-icons only has Fiverr's full wordmark, which is unreadable at icon size.
+    // This is the round "fi" badge instead, cut out of a solid circle.
+    <>
+      <mask id={maskId}>
+        <rect width="24" height="24" fill="white" />
+        <text x="12" y="16.6" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif"
+              font-size="13" font-weight="800" letter-spacing="-0.5" fill="black">fi</text>
+      </mask>
+      <circle cx="12" cy="12" r="12" mask={`url(#${maskId})`} />
+    </>
+  ) : (
+    <path d={paths[name]} />
+  )}
+</svg>
