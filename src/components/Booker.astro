@@ -1,58 +1,141 @@
 ---
-// "Book a 15-minute call", drawn by the site and backed by Cal.com through /api/slots and
-// /api/book. Lives inside the smoked-glass contact pane, so it only uses the fixed night/snow
-// colours. The day and time chips are styled by .slot in global.css, because the script creates them.
-// Stays hidden until the API answers, so a missing Cal.com setup never shows a broken widget.
+// "Book a call": a sheet that opens from the Book a call button in the contact pane. The
+// visitor picks a day and a time that suits them, then leaves a name and email. Cal.com does
+// the calendar work through /api/slots and /api/book (see src/server/).
+//
+// The button that opens it is any element with [data-book-open]. It stays hidden until the
+// API answers, so a missing Cal.com setup never shows a button that leads nowhere.
+// The day and time chips are styled by .slot in global.css, because the script creates them.
 ---
-<div id="call" class="booker mt-12 border-t border-snow/15 pt-10 scroll-mt-8" hidden>
-  <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-    <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Or grab 15 minutes on a call</h3>
-    <p class="text-sm text-snow/55" data-tz-note></p>
-  </div>
+<dialog id="call" class="sheet" aria-labelledby="call-title">
+  <div class="sheet-pane glass glass-dark text-snow">
+    <header class="flex items-start justify-between gap-4">
+      <div>
+        <h3 id="call-title" class="font-display text-2xl sm:text-3xl font-bold tracking-tight">Book a call</h3>
+        <p class="mt-1 text-sm text-snow/60" data-tz-note></p>
+      </div>
+      <button type="button" data-close aria-label="Close" class="close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+    </header>
 
-  <!-- Step 1 and 2: pick a day, pick a time. -->
-  <div data-step="pick">
-    <div data-days class="mt-6 -mx-1 px-1 flex gap-2 overflow-x-auto pb-2 snap-x" role="listbox" aria-label="Day"></div>
-    <div data-slots class="mt-4 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2" role="listbox" aria-label="Time"></div>
-  </div>
-
-  <!-- Step 3: who you are. -->
-  <form data-step="form" class="mt-6 grid gap-4 max-w-xl" hidden novalidate>
-    <p class="text-lg">
-      <span data-chosen class="font-semibold"></span>
-      <button type="button" data-back class="ml-2 text-sm text-snow/60 underline decoration-tint decoration-2 underline-offset-4 hover:text-snow cursor-pointer">change</button>
-    </p>
-    <label class="grid gap-1.5">
-      <span class="text-sm text-snow/70">Your name</span>
-      <input name="name" required maxlength="100" autocomplete="name" class="field" />
-    </label>
-    <label class="grid gap-1.5">
-      <span class="text-sm text-snow/70">Email, for the invite</span>
-      <input name="email" type="email" required maxlength="200" autocomplete="email" class="field" />
-    </label>
-    <label class="grid gap-1.5">
-      <span class="text-sm text-snow/70">What would you like to talk about? <span class="text-snow/45">(optional)</span></span>
-      <textarea name="notes" rows="3" maxlength="1000" class="field resize-y"></textarea>
-    </label>
-    <!-- Honeypot: hidden from people, irresistible to bots. -->
-    <input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute -left-[9999px] h-0 w-0 opacity-0" />
-    <div class="flex flex-wrap items-center gap-4">
-      <button type="submit" class="btn btn-tint disabled:opacity-60 cursor-pointer">Confirm the call</button>
-      <p data-error class="text-sm text-tint" role="alert"></p>
+    <!-- Step 1 and 2: pick a day, pick a time. -->
+    <div data-step="pick">
+      <p class="mt-5 text-snow/75">Pick a day and a time that suits you.</p>
+      <div data-days class="mt-4 -mx-1 px-1 flex gap-2 overflow-x-auto pb-2 snap-x" role="listbox" aria-label="Day"></div>
+      <div data-slots class="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-2" role="listbox" aria-label="Time"></div>
     </div>
-  </form>
 
-  <!-- Step 4: done. -->
-  <div data-step="done" class="mt-6" hidden>
-    <p class="font-display text-2xl sm:text-3xl font-semibold">You're booked. <span class="text-tint">Talk soon.</span></p>
-    <p class="mt-3 text-snow/75" data-done-text></p>
-    <a data-meeting class="mt-4 inline-block underline decoration-tint decoration-2 underline-offset-4" target="_blank" rel="noopener" hidden>Join link</a>
+    <!-- Step 3: who you are. -->
+    <form data-step="form" class="mt-5 grid gap-4" hidden novalidate>
+      <p class="text-lg">
+        <span data-chosen class="font-semibold"></span>
+        <button type="button" data-back class="ml-2 text-sm text-snow/60 underline decoration-tint decoration-2 underline-offset-4 hover:text-snow cursor-pointer">change</button>
+      </p>
+      <label class="grid gap-1.5">
+        <span class="text-sm text-snow/70">Your name</span>
+        <input name="name" required maxlength="100" autocomplete="name" class="field" />
+      </label>
+      <label class="grid gap-1.5">
+        <span class="text-sm text-snow/70">Email, for the invite</span>
+        <input name="email" type="email" required maxlength="200" autocomplete="email" class="field" />
+      </label>
+      <label class="grid gap-1.5">
+        <span class="text-sm text-snow/70">What would you like to talk about? <span class="text-snow/45">(optional)</span></span>
+        <textarea name="notes" rows="3" maxlength="1000" class="field resize-y"></textarea>
+      </label>
+      <!-- Honeypot: hidden from people, irresistible to bots. -->
+      <input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute -left-[9999px] h-0 w-0 opacity-0" />
+      <div class="flex flex-wrap items-center gap-4">
+        <button type="submit" class="btn btn-tint disabled:opacity-60 cursor-pointer">Confirm the call</button>
+        <p data-error class="text-sm text-tint" role="alert"></p>
+      </div>
+    </form>
+
+    <!-- Step 4: done. -->
+    <div data-step="done" class="mt-5" hidden>
+      <p class="font-display text-2xl sm:text-3xl font-semibold">You're booked. <span class="text-tint">Talk soon.</span></p>
+      <p class="mt-3 text-snow/75" data-done-text></p>
+      <a data-meeting class="mt-4 inline-block underline decoration-tint decoration-2 underline-offset-4" target="_blank" rel="noopener" hidden>Join link</a>
+    </div>
+
+    <p data-status class="mt-4 text-sm text-snow/60" aria-live="polite"></p>
   </div>
-
-  <p data-status class="mt-4 text-sm text-snow/60" aria-live="polite"></p>
-</div>
+</dialog>
 
 <style>
+  /* The sheet rises on a spring and settles; closing reverses it. Only transform and opacity
+     move, so the browser can run it at the display's full refresh rate. */
+  .sheet {
+    border: 0;
+    padding: 0;
+    margin: auto;
+    background: transparent;
+    color: inherit;
+    overflow: visible;
+    width: min(44rem, calc(100vw - 2rem));
+    max-width: none;
+    max-height: none;
+    opacity: 0;
+    transform: translateY(28px) scale(0.955);
+    transition:
+      opacity 240ms ease,
+      transform 560ms var(--spring),
+      overlay 560ms allow-discrete,
+      display 560ms allow-discrete;
+    will-change: transform, opacity;
+  }
+  .sheet[open] { opacity: 1; transform: none; }
+  /* The sheet takes focus when it opens; the ring belongs on its controls, not on the sheet. */
+  .sheet:focus, .sheet:focus-visible { outline: none; }
+  @starting-style { .sheet[open] { opacity: 0; transform: translateY(28px) scale(0.955); } }
+
+  .sheet::backdrop {
+    background: rgb(4 6 14 / 0.5);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transition: opacity 320ms ease, overlay 320ms allow-discrete, display 320ms allow-discrete;
+  }
+  .sheet[open]::backdrop { opacity: 1; }
+  @starting-style { .sheet[open]::backdrop { opacity: 0; } }
+
+  .sheet-pane {
+    border-radius: 2rem;
+    padding: 1.6rem 1.5rem 1.4rem;
+    max-height: min(46rem, calc(100dvh - 2rem));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  @media (min-width: 640px) { .sheet-pane { padding: 2.2rem 2.4rem 2rem; } }
+
+  /* On a phone it is a bottom sheet, the way iOS presents one. */
+  @media (max-width: 639px) {
+    .sheet { width: 100vw; margin: auto 0 0; transform: translateY(100%); }
+    @starting-style { .sheet[open] { opacity: 1; transform: translateY(100%); } }
+    .sheet-pane { border-radius: 2rem 2rem 0 0; max-height: 90dvh; padding-bottom: max(1.4rem, env(safe-area-inset-bottom)); }
+  }
+
+  .close {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.12);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+    cursor: pointer;
+    transition: transform 320ms var(--spring), background-color 150ms ease;
+  }
+  .close:hover { background: rgb(255 255 255 / 0.2); }
+  .close:active { transform: scale(0.9); }
+  .close svg { width: 1rem; height: 1rem; }
+
+  /* Each step fades up into place when it takes over. */
+  [data-step]:not([hidden]) { animation: step-in 420ms var(--spring) both; }
+  @keyframes step-in { from { opacity: 0; transform: translateY(10px); } }
+
   /* Fields are shallow wells in the glass. */
   .field {
     background: linear-gradient(135deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.04));
@@ -63,11 +146,18 @@
     color: var(--color-snow);
   }
   .field:focus { outline: none; border-color: var(--color-tint); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-tint) 30%, transparent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sheet, .sheet::backdrop, .close { transition: none; }
+    .sheet, .sheet[open] { transform: none; }
+    [data-step]:not([hidden]) { animation: none; }
+  }
 </style>
 
 <script>
-  const root = document.getElementById('call')!;
-  const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+  const sheet = document.getElementById('call') as HTMLDialogElement;
+  const openers = [...document.querySelectorAll<HTMLElement>('[data-book-open]')];
+  const $ = <T extends HTMLElement>(sel: string) => sheet.querySelector<T>(sel)!;
   const daysEl = $('[data-days]');
   const slotsEl = $('[data-slots]');
   const form = $<HTMLFormElement>('[data-step="form"]');
@@ -87,19 +177,19 @@
   const full = fmt({ weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
 
   $('[data-tz-note]').textContent = sameZone
-    ? 'Times in Chennai time'
-    : `Times in your time zone (${tz.replace(/_/g, ' ')}), Chennai time below`;
+    ? 'Times are in Chennai time.'
+    : `Times are in your time zone (${tz.replace(/_/g, ' ')}), with Chennai time below.`;
 
   let days: Record<string, string[]> = {};
   let chosen: string | null = null;
+  let loadedAt = 0;
+  let booked = false;
 
   const show = (step: 'pick' | 'form' | 'done') => {
-    root.querySelectorAll<HTMLElement>('[data-step]').forEach((el) => (el.hidden = el.dataset.step !== step));
+    sheet.querySelectorAll<HTMLElement>('[data-step]').forEach((el) => (el.hidden = el.dataset.step !== step));
   };
 
   const pill = 'slot snap-start shrink-0 px-4 py-2.5 text-left cursor-pointer';
-  const off = '';
-  const on = 'is-on';
 
   function renderDays(active: string) {
     daysEl.replaceChildren(...Object.keys(days).map((day) => {
@@ -108,7 +198,7 @@
       b.type = 'button';
       b.setAttribute('role', 'option');
       b.setAttribute('aria-selected', String(day === active));
-      b.className = `${pill} ${day === active ? on : off}`;
+      b.className = `${pill} ${day === active ? 'is-on' : ''}`;
       b.innerHTML = `<span class="block text-xs opacity-70">${dayName.format(d)}</span><span class="block font-semibold">${dayNum.format(d)}</span>`;
       b.onclick = () => { renderDays(day); renderSlots(day); };
       return b;
@@ -174,6 +264,7 @@
         a.href = body.meetingUrl;
         a.hidden = false;
       }
+      booked = true;
       show('done');
       // The wallpaper swells for a moment.
       window.dispatchEvent(new CustomEvent('bg:burst'));
@@ -185,29 +276,47 @@
     }
   });
 
+  /** Fetch free times. Returns false when booking isn't available at all. */
   async function load() {
     try {
       const res = await fetch(`/api/slots?timeZone=${encodeURIComponent(tz)}`);
       if (!res.ok) throw new Error(String(res.status));
       days = (await res.json()).days ?? {};
     } catch {
-      // Not set up yet, or Cal.com is down: keep the widget out of sight.
-      root.hidden = true;
-      return;
+      return false;
     }
-    root.hidden = false;
+    loadedAt = Date.now();
     const first = Object.keys(days)[0];
     if (!first) {
       daysEl.replaceChildren();
       slotsEl.replaceChildren();
       status.textContent = 'No free times in the next few weeks. Email me and we’ll find one.';
-      return;
+      return true;
     }
     status.textContent = '';
     renderDays(first);
     renderSlots(first);
-    show('pick');
+    return true;
   }
 
-  load();
+  function open() {
+    if (sheet.open) return;
+    if (!booked) show('pick');
+    sheet.showModal();
+    // Free times go stale: refresh them if the page has been open a while.
+    if (!booked && Date.now() - loadedAt > 60_000) load();
+  }
+  const close = () => sheet.close();
+
+  openers.forEach((b) => b.addEventListener('click', open));
+  $('[data-close]').addEventListener('click', close);
+  // A click on the dimmed page behind the sheet closes it.
+  sheet.addEventListener('click', (e) => { if (e.target === sheet) close(); });
+
+  // The button only appears once booking is known to work. A link to #call opens the sheet.
+  load().then((ok) => {
+    if (!ok) return;
+    openers.forEach((b) => (b.hidden = false));
+    if (location.hash === '#call') open();
+  });
 </script>

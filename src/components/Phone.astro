@@ -73,7 +73,9 @@ const dock = [
     display: flex;
     flex-direction: column;
     transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
-    transition: transform 500ms cubic-bezier(.2, .8, .2, 1), --lit 350ms ease;
+    /* The tilt is eased by the script every frame, so there is no CSS transition on it. */
+    transition: --lit 350ms ease;
+    will-change: transform;
     /* A second, inner edge: the thickness of the glass. */
     outline: 1px solid rgb(255 255 255 / 0.35);
     outline-offset: -7px;
@@ -92,18 +94,18 @@ const dock = [
   .widget .sub { margin-top: 0.2rem; font-size: 0.74rem; color: var(--color-muted); }
   .dot { width: 0.8rem; height: 0.8rem; border-radius: 50%; background: var(--color-muted); }
   .dot[data-on] { background: var(--color-go); box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-go) 22%, transparent); }
-  a.widget { transition: transform 180ms cubic-bezier(.3, 1.6, .5, 1), --lit 350ms ease; }
+  a.widget { transition: transform 460ms var(--spring-bounce), --lit 350ms ease; }
   a.widget:active { transform: scale(0.95); }
 
   .apps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.95rem 0.35rem; margin-top: 1.3rem; }
-  .apps a { display: grid; justify-items: center; gap: 0.3rem; transition: transform 180ms cubic-bezier(.3, 1.6, .5, 1); }
+  .apps a { display: grid; justify-items: center; gap: 0.3rem; transition: transform 460ms var(--spring-bounce); }
   .apps a:hover { transform: translateY(-3px) scale(1.05); }
   .apps a:active { transform: scale(0.9); }
   .apps img { width: 3.75rem; height: 3.75rem; border-radius: 23%; box-shadow: 0 8px 18px -8px rgb(10 16 40 / 0.55), inset 0 0 0 1px rgb(255 255 255 / 0.18); }
   .apps span { max-width: 5.3rem; font-size: 0.68rem; font-weight: 550; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .dock { margin-top: auto; display: flex; justify-content: space-around; align-items: center; border-radius: 1.75rem; padding: 0.55rem 0.4rem; }
-  .dock a { display: grid; place-items: center; width: 2.7rem; height: 2.7rem; border-radius: 28%; background: rgb(255 255 255 / 0.55); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8); transition: transform 180ms cubic-bezier(.3, 1.6, .5, 1), background-color 150ms ease, color 150ms ease; }
+  .dock a { display: grid; place-items: center; width: 2.7rem; height: 2.7rem; border-radius: 28%; background: rgb(255 255 255 / 0.55); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8); transition: transform 460ms var(--spring-bounce), background-color 150ms ease, color 150ms ease; }
   :global(.dark) .dock a { background: rgb(255 255 255 / 0.1); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2); }
   .dock a:hover { transform: translateY(-3px) scale(1.06); background: var(--tint-fill); color: var(--on-tint); }
   .dock a:active { transform: scale(0.9); }
@@ -131,16 +133,30 @@ const dock = [
   const phone = document.getElementById('phone');
   const stage = phone?.closest<HTMLElement>('section');
   if (phone && stage && matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) {
+    // The pointer sets where the tilt is heading; each frame the phone closes part of the
+    // gap. Frame-rate independent, so it is as smooth as the display allows (120Hz included).
+    const target = { x: 0, y: 0 };
+    const now = { x: 0, y: 0 };
+    let raf = 0;
+    let last = 0;
+    const frame = (t: number) => {
+      const dt = Math.min((t - last) / 1000 || 0.016, 0.05);
+      last = t;
+      const k = 1 - Math.exp(-dt * 9);
+      now.x += (target.x - now.x) * k;
+      now.y += (target.y - now.y) * k;
+      phone.style.setProperty('--tilt-x', `${now.x.toFixed(3)}deg`);
+      phone.style.setProperty('--tilt-y', `${now.y.toFixed(3)}deg`);
+      const settled = Math.abs(target.x - now.x) < 0.01 && Math.abs(target.y - now.y) < 0.01;
+      raf = settled ? 0 : requestAnimationFrame(frame);
+    };
+    const go = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } };
     stage.addEventListener('pointermove', (e) => {
       const r = phone.getBoundingClientRect();
-      const x = (e.clientX - (r.left + r.width / 2)) / innerWidth;
-      const y = (e.clientY - (r.top + r.height / 2)) / innerHeight;
-      phone.style.setProperty('--tilt-y', `${(x * 16).toFixed(2)}deg`);
-      phone.style.setProperty('--tilt-x', `${(-y * 12).toFixed(2)}deg`);
-    });
-    stage.addEventListener('pointerleave', () => {
-      phone.style.setProperty('--tilt-x', '0deg');
-      phone.style.setProperty('--tilt-y', '0deg');
-    });
+      target.y = ((e.clientX - (r.left + r.width / 2)) / innerWidth) * 16;
+      target.x = (-(e.clientY - (r.top + r.height / 2)) / innerHeight) * 12;
+      go();
+    }, { passive: true });
+    stage.addEventListener('pointerleave', () => { target.x = 0; target.y = 0; go(); });
   }
 </script>

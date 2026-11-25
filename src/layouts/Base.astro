@@ -91,10 +91,13 @@ const year = new Date().getFullYear();
         toggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
         meta.content = dark ? '#04060d' : '#e9f0fb';
       };
+      const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
       const setTheme = (dark: boolean) => {
+        const apply = () => { root.classList.toggle('dark', dark); sync(); };
+        // Where the browser can, the whole page cross-fades between light and dark in one go.
+        if (!calm && 'startViewTransition' in document) return void document.startViewTransition(apply);
         root.classList.add('theme-switching');
-        root.classList.toggle('dark', dark);
-        sync();
+        apply();
         setTimeout(() => root.classList.remove('theme-switching'), 300);
       };
       sync();
@@ -126,7 +129,7 @@ const year = new Date().getFullYear();
         const link = links.find((a) => a.dataset.tab === active);
         links.forEach((a) => (a === link ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current')));
         if (!link) return void (lens.style.opacity = '0');
-        lens.style.left = `${link.offsetLeft}px`;
+        lens.style.translate = `${link.offsetLeft}px 0`;
         lens.style.width = `${link.offsetWidth}px`;
         lens.style.opacity = '1';
       };
@@ -151,6 +154,17 @@ const year = new Date().getFullYear();
         // On a case study, Work is where you are.
         setActive('work');
       }
+
+      // Tapping a project sends its icon travelling to the case-study page (see @view-transition
+      // in global.css). Only the tapped icon carries the name, since a name must be unique.
+      document.addEventListener('click', (e) => {
+        const link = (e.target as Element | null)?.closest<HTMLAnchorElement>('a[href^="/work/"]');
+        const icon = link?.querySelector<HTMLElement>('img');
+        if (!icon) return;
+        document.querySelectorAll<HTMLElement>('[data-vt]').forEach((el) => { el.style.viewTransitionName = ''; delete el.dataset.vt; });
+        icon.style.viewTransitionName = 'work-icon';
+        icon.dataset.vt = '';
+      });
 
       // A booked call makes the wallpaper swell for a moment.
       addEventListener('bg:burst', () => {
