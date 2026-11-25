@@ -1,8 +1,8 @@
-// Shared by the Cloudflare Pages Functions in /functions/api. Runs on the server only:
+// Shared by the Worker API routes in src/server/api. Runs on the server only:
 // the Cal.com API key never reaches the browser.
 
 export interface Env {
-  /** Cal.com API key (Settings → Security). Set as an encrypted variable in Cloudflare. */
+  /** Cal.com API key (Settings → Security). Set as a Secret on the Worker in Cloudflare. */
   CAL_API_KEY?: string;
   /** Your Cal.com username, e.g. "karunagaran". */
   CAL_USERNAME?: string;
@@ -12,7 +12,7 @@ export interface Env {
   CAL_API_BASE?: string;
 }
 
-/** Minimal shape of a Pages Function context, so no extra type package is needed. */
+/** What each API route receives from src/worker.ts. */
 export interface Context {
   request: Request;
   env: Env;

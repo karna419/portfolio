@@ -21,7 +21,12 @@ npm run preview   # serve the production build locally
 - **Colours and fonts:** `src/styles/global.css` (the `@theme` block).
 - **Domain:** update `site` in `astro.config.mjs` once the domain is live.
 
-## Deploy on Cloudflare Pages
+## Deploy on Cloudflare (Workers)
+
+The site is the `portofolio` Worker: every push to `main` builds (`npm run build`) and deploys
+(`npx wrangler deploy`, configured by `wrangler.jsonc`). The notes below are from the original Pages setup.
+
+### Original Pages setup
 
 1. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git** → pick this repo.
 2. Framework preset **Astro**. Build command `npm run build`, output directory `dist`, production branch `main`.
@@ -33,16 +38,16 @@ npm run preview   # serve the production build locally
 ## "Book a call" (Cal.com)
 
 The contact panel has a 20-minute call picker drawn by the site. Cal.com does the calendar work
-(free/busy, invites, meeting link) behind two Cloudflare Pages Functions in `functions/api/`,
+(free/busy, invites, meeting link) behind a small Worker route (`src/worker.ts` → `src/server/api/`),
 so the API key never reaches the browser. Until it's configured, the picker stays hidden.
 
 1. Make a free account at cal.com, connect your calendar and a video app (Google Meet or Zoom).
 2. Create an event type: 20 minutes, slug `20min`, with your working hours.
 3. Settings → Security → create an API key.
-4. Cloudflare → this Pages project → **Settings → Variables and secrets**, for Production:
+4. Cloudflare → Workers & Pages → **portofolio → Settings → Variables and Secrets**:
    - `CAL_API_KEY` (type **Secret**): the key from step 3
    - `CAL_USERNAME`: your Cal.com username
    - `CAL_EVENT_SLUG`: only if the slug isn't `20min`
-5. Redeploy (Deployments → retry latest). The picker appears once `/api/slots` answers.
+   Saving them redeploys the Worker; the picker appears once `/api/slots` answers.
 
-Test locally with `npm run build && npx wrangler pages dev dist --binding CAL_API_KEY=... --binding CAL_USERNAME=...`.
+Test locally with `npm run build && npx wrangler dev --var CAL_API_KEY:... --var CAL_USERNAME:...`.

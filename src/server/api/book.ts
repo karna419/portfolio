@@ -1,6 +1,6 @@
 // POST /api/book  { start, name, email, notes?, timeZone, website? }
 // Books the 20-minute call. Cal.com sends both sides the calendar invite and meeting link.
-import { config, isTimeZone, json, WINDOW_DAYS, type Context } from '../../src/server/cal';
+import { config, isTimeZone, json, WINDOW_DAYS, type Context } from '../cal';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 

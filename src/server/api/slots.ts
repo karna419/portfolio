@@ -1,6 +1,6 @@
 // GET /api/slots?timeZone=Europe/Berlin
 // Free 20-minute slots for the next few weeks, grouped by day in the visitor's time zone.
-import { config, isTimeZone, json, WINDOW_DAYS, type Context } from '../../src/server/cal';
+import { config, isTimeZone, json, WINDOW_DAYS, type Context } from '../cal';
 
 export async function onRequestGet({ request, env }: Context) {
   const cal = config(env);
