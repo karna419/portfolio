@@ -294,7 +294,7 @@
   .link { transition: none; }
 }
 
-/* The K mark in the header: its chevron nudges forward when you point at it. */
+/* The K mark in the header: its amber stroke nudges forward when you point at it. */
 .logo .logo-arm { transition: transform 260ms cubic-bezier(.3, 1.6, .5, 1); }
 .logo:hover .logo-arm { transform: translateX(3px); }
 .logo:active { scale: 0.94; }

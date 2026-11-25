@@ -6,9 +6,10 @@
     </linearGradient>
   </defs>
   <rect width="64" height="64" rx="15" fill="url(#tile)"/>
-  <!-- The K: a white stem and an amber chevron. Same mark as the one in the site header. -->
-  <g fill="none" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M20 16V48" stroke="#f5f6fa"/>
-    <path d="M46 16L32 32L46 48" stroke="#ff9f0a"/>
+  <!-- A slanted, handwritten K: a white stem and one amber stroke for the arm and leg.
+       Same mark as the one in the site header. -->
+  <g fill="none" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M25 13C23.5 25 21 38 17.5 51" stroke="#f5f6fa"/>
+    <path d="M48 14C41 22.5 32 29.5 23 33.5C31 35.5 37.5 42.5 42.5 51.5" stroke="#ff9f0a"/>
   </g>
 </svg>

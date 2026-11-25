@@ -44,12 +44,12 @@ const year = new Date().getFullYear();
     <!-- Floating glass bars. The header itself lets clicks through; only the bars catch them. -->
     <header class="fixed top-3 inset-x-0 z-40 pointer-events-none">
       <div class="mx-auto max-w-6xl px-4 sm:px-8 flex items-center justify-between gap-3">
-        <!-- The K mark: a stem in the text colour and an amber chevron. Also the tab icon (public/favicon.svg). -->
+        <!-- The K mark, slanted and drawn like handwriting: a stem in the text colour and an amber stroke for the arm and leg. Also the tab icon (public/favicon.svg). -->
         <a href="/" aria-label={`${site.name}, home`} title={site.name}
            class="logo glass capsule pointer-events-auto grid place-items-center size-11">
-          <svg viewBox="0 0 64 64" class="size-7" fill="none" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M20 16V48" stroke="currentColor" />
-            <path class="logo-arm" d="M46 16L32 32L46 48" stroke="var(--color-marigold)" />
+          <svg viewBox="0 0 64 64" class="size-7" fill="none" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M25 13C23.5 25 21 38 17.5 51" stroke="currentColor" />
+            <path class="logo-arm" d="M48 14C41 22.5 32 29.5 23 33.5C31 35.5 37.5 42.5 42.5 51.5" stroke="var(--color-marigold)" />
           </svg>
         </a>
         <div class="flex items-center gap-2 pointer-events-auto">
