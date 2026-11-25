@@ -1,5 +1,5 @@
 // Background: a layered neural network drifting in 3D. Signals fire forward from the
-// input layer, travel along the connections and light up each node they reach.
+// input layer and gently tint each node they reach.
 import {
   AdditiveBlending,
   BufferAttribute,
@@ -25,7 +25,7 @@ const pointVertex = /* glsl */ `
   void main() {
     vAct = aAct;
     vec4 mv = modelViewMatrix * vec4(position, 1.0);
-    gl_PointSize = uSize * (1.0 + aAct * 1.4) * uScale / -mv.z;
+    gl_PointSize = uSize * uScale / -mv.z;
     gl_Position = projectionMatrix * mv;
   }
 `;
@@ -37,9 +37,7 @@ const pointFragment = /* glsl */ `
   varying float vAct;
   void main() {
     float d = length(gl_PointCoord - 0.5);
-    float core = smoothstep(0.5, 0.32, d);
-    float glow = smoothstep(0.5, 0.0, d) * vAct;
-    float a = max(core, glow) * uAlpha * mix(0.75, 1.0, vAct);
+    float a = smoothstep(0.5, 0.3, d) * uAlpha * mix(0.7, 1.0, vAct);
     if (a < 0.01) discard;
     gl_FragColor = vec4(mix(uBase, uAccent, vAct), a);
   }
@@ -123,7 +121,7 @@ export function start(canvas: HTMLCanvasElement) {
   const nodeGeo = new BufferGeometry();
   nodeGeo.setAttribute('position', new BufferAttribute(nodePos, 3));
   nodeGeo.setAttribute('aAct', new BufferAttribute(nodeAct, 1));
-  const nodeMat = pointMaterial(0.26, 0.9);
+  const nodeMat = pointMaterial(0.12, 0.9);
   net.add(new Points(nodeGeo, nodeMat));
 
   const linePos = new Float32Array(edges.length * 6);
@@ -136,7 +134,7 @@ export function start(canvas: HTMLCanvasElement) {
   const lineMat = new LineBasicMaterial({ transparent: true, depthWrite: false });
   net.add(new LineSegments(lineGeo, lineMat));
 
-  // --- Signals travelling along the connections.
+  // --- Signals travelling along the connections (not drawn; they just light up nodes).
   const firstLayer = layerSizes[0];
   const pulseCount = small ? 22 : 40;
   const pulses: Pulse[] = [];
@@ -151,13 +149,6 @@ export function start(canvas: HTMLCanvasElement) {
   };
   for (let i = 0; i < pulseCount; i++) pulses.push(spawn());
 
-  const pulsePos = new Float32Array(pulseCount * 3);
-  const pulseAct = new Float32Array(pulseCount);
-  const pulseGeo = new BufferGeometry();
-  pulseGeo.setAttribute('position', new BufferAttribute(pulsePos, 3));
-  pulseGeo.setAttribute('aAct', new BufferAttribute(pulseAct, 1));
-  const pulseMat = pointMaterial(0.15, 1);
-  net.add(new Points(pulseGeo, pulseMat));
 
   // --- Colours follow the site theme.
   const applyTheme = () => {
@@ -165,12 +156,10 @@ export function start(canvas: HTMLCanvasElement) {
     const dark = document.documentElement.classList.contains('dark');
     const ink = new Color(css.getPropertyValue('--color-ink').trim() || '#18212c');
     const accent = new Color(css.getPropertyValue('--color-marigold').trim() || '#e39b2d');
-    for (const m of [nodeMat, pulseMat]) {
-      m.uniforms.uBase.value.copy(ink);
-      m.uniforms.uAccent.value.copy(accent);
-      m.blending = dark ? AdditiveBlending : NormalBlending;
-    }
-    nodeMat.uniforms.uAlpha.value = dark ? 0.55 : 0.5;
+    nodeMat.uniforms.uBase.value.copy(ink);
+    nodeMat.uniforms.uAccent.value.copy(accent);
+    nodeMat.blending = dark ? AdditiveBlending : NormalBlending;
+    nodeMat.uniforms.uAlpha.value = dark ? 0.4 : 0.35;
     lineMat.color.copy(ink);
     lineMat.opacity = dark ? 0.1 : 0.09;
     render();
@@ -189,7 +178,6 @@ export function start(canvas: HTMLCanvasElement) {
     net.scale.setScalar(Math.min(1.15, Math.max(0.55, visibleWidth / (spanX + 4))));
     const scale = h * renderer.getPixelRatio() * 0.5;
     nodeMat.uniforms.uScale.value = scale;
-    pulseMat.uniforms.uScale.value = scale;
     render();
   };
 
@@ -218,7 +206,7 @@ export function start(canvas: HTMLCanvasElement) {
 
     for (let i = 0; i < nodeAct.length; i++) nodeAct[i] = Math.max(0, nodeAct[i] - dt * 1.4);
 
-    pulses.forEach((p, i) => {
+    pulses.forEach((p) => {
       p.t += dt * p.speed;
       const e = edges[p.edge];
       if (p.t >= 1) {
@@ -232,24 +220,9 @@ export function start(canvas: HTMLCanvasElement) {
           spawn(p);
         }
       }
-      if (p.t < 0) {
-        // Not fired yet: park it behind the camera so it isn't drawn.
-        pulsePos[i * 3 + 2] = 1000;
-        pulseAct[i] = 0;
-        return;
-      }
-      const t = p.t;
-      const a = nodes[edges[p.edge].from];
-      const b = nodes[edges[p.edge].to];
-      pulsePos[i * 3] = a.x + (b.x - a.x) * t;
-      pulsePos[i * 3 + 1] = a.y + (b.y - a.y) * t;
-      pulsePos[i * 3 + 2] = a.z + (b.z - a.z) * t;
-      pulseAct[i] = 1;
     });
 
     nodeGeo.attributes.aAct.needsUpdate = true;
-    pulseGeo.attributes.position.needsUpdate = true;
-    pulseGeo.attributes.aAct.needsUpdate = true;
   };
 
   const loop = (now: number) => {
@@ -267,6 +240,20 @@ export function start(canvas: HTMLCanvasElement) {
     last = performance.now();
     requestAnimationFrame(loop);
   };
+
+  // A booking (or anything else) can fire every signal at once from the input layer.
+  addEventListener('neural:burst', () => {
+    for (let i = 0; i < firstLayer; i++) nodeAct[i] = 1;
+    for (const p of pulses) {
+      spawn(p);
+      p.t = 0;
+      p.speed = 0.6 + Math.random() * 0.4;
+    }
+    if (reduceMotion) {
+      step(0.4);
+      render();
+    }
+  });
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) running = false;
