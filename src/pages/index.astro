@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import { site } from '../site';
 import { getWork } from '../lib';
 import Icon from '../components/Icon.astro';
+import Booker from '../components/Booker.astro';
 
 const work = await getWork();
 const hire = site.links.filter((l) => site.hire.includes(l.label));
@@ -41,7 +42,7 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
 
     {site.location && (
       <p class="mt-6 flex items-center gap-1.5 text-muted">
-        <Icon name="pin" class="size-[1.1rem] text-marigold" />
+        <Icon name="pin" class="size-[1.1rem]" />
         {site.location}
       </p>
     )}
@@ -100,6 +101,7 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
         ))}
       </div>
       {site.email && <p class="mt-5 text-sm text-snow/60">{site.email}</p>}
+      <Booker />
     </div>
   </section>
 </Base>

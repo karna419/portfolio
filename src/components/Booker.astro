@@ -1,0 +1,210 @@
+---
+// "Book a 20-minute call", drawn by the site and backed by Cal.com through /api/slots and
+// /api/book. Lives inside the dark contact panel, so it only uses the fixed night/snow colours.
+// Stays hidden until the API answers, so a missing Cal.com setup never shows a broken widget.
+---
+<div id="call" class="booker mt-12 border-t border-snow/15 pt-10 scroll-mt-8" hidden>
+  <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+    <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Or grab 20 minutes on a call</h3>
+    <p class="text-sm text-snow/55" data-tz-note></p>
+  </div>
+
+  <!-- Step 1 and 2: pick a day, pick a time. -->
+  <div data-step="pick">
+    <div data-days class="mt-6 -mx-1 px-1 flex gap-2 overflow-x-auto pb-2 snap-x" role="listbox" aria-label="Day"></div>
+    <div data-slots class="mt-4 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2" role="listbox" aria-label="Time"></div>
+  </div>
+
+  <!-- Step 3: who you are. -->
+  <form data-step="form" class="mt-6 grid gap-4 max-w-xl" hidden novalidate>
+    <p class="text-lg">
+      <span data-chosen class="font-semibold"></span>
+      <button type="button" data-back class="ml-2 text-sm text-snow/60 underline decoration-marigold decoration-2 underline-offset-4 hover:text-snow cursor-pointer">change</button>
+    </p>
+    <label class="grid gap-1.5">
+      <span class="text-sm text-snow/70">Your name</span>
+      <input name="name" required maxlength="100" autocomplete="name" class="field" />
+    </label>
+    <label class="grid gap-1.5">
+      <span class="text-sm text-snow/70">Email, for the invite</span>
+      <input name="email" type="email" required maxlength="200" autocomplete="email" class="field" />
+    </label>
+    <label class="grid gap-1.5">
+      <span class="text-sm text-snow/70">What would you like to talk about? <span class="text-snow/45">(optional)</span></span>
+      <textarea name="notes" rows="3" maxlength="1000" class="field resize-y"></textarea>
+    </label>
+    <!-- Honeypot: hidden from people, irresistible to bots. -->
+    <input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute -left-[9999px] h-0 w-0 opacity-0" />
+    <div class="flex flex-wrap items-center gap-4">
+      <button type="submit" class="rounded-full bg-marigold text-night font-semibold px-6 py-3 hover:bg-snow transition-colors disabled:opacity-60 cursor-pointer">Confirm the call</button>
+      <p data-error class="text-sm text-marigold" role="alert"></p>
+    </div>
+  </form>
+
+  <!-- Step 4: done. -->
+  <div data-step="done" class="mt-6" hidden>
+    <p class="font-display text-2xl sm:text-3xl font-semibold">You're booked. <span class="text-marigold">Talk soon.</span></p>
+    <p class="mt-3 text-snow/75" data-done-text></p>
+    <a data-meeting class="mt-4 inline-block underline decoration-marigold decoration-2 underline-offset-4" target="_blank" rel="noopener" hidden>Join link</a>
+  </div>
+
+  <p data-status class="mt-4 text-sm text-snow/60" aria-live="polite"></p>
+</div>
+
+<style>
+  .field {
+    background: color-mix(in srgb, var(--color-snow) 6%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-snow) 18%, transparent);
+    border-radius: 10px;
+    padding: 0.65rem 0.85rem;
+    color: var(--color-snow);
+  }
+  .field:focus { outline: none; border-color: var(--color-marigold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-marigold) 30%, transparent); }
+</style>
+
+<script>
+  const root = document.getElementById('call')!;
+  const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+  const daysEl = $('[data-days]');
+  const slotsEl = $('[data-slots]');
+  const form = $<HTMLFormElement>('[data-step="form"]');
+  const status = $('[data-status]');
+  const errorEl = $('[data-error]');
+
+  const HOME = 'Asia/Kolkata';
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const sameZone = new Intl.DateTimeFormat('en', { timeZone: tz, timeZoneName: 'longOffset' }).format(0) ===
+    new Intl.DateTimeFormat('en', { timeZone: HOME, timeZoneName: 'longOffset' }).format(0);
+
+  const fmt = (opts: Intl.DateTimeFormatOptions, zone = tz) => new Intl.DateTimeFormat(undefined, { timeZone: zone, ...opts });
+  const timeLocal = fmt({ hour: 'numeric', minute: '2-digit' });
+  const timeHome = fmt({ hour: 'numeric', minute: '2-digit' }, HOME);
+  const dayName = fmt({ weekday: 'short' });
+  const dayNum = fmt({ day: 'numeric', month: 'short' });
+  const full = fmt({ weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+
+  $('[data-tz-note]').textContent = sameZone
+    ? 'Times in Chennai time'
+    : `Times in your time zone (${tz.replace(/_/g, ' ')}), Chennai time below`;
+
+  let days: Record<string, string[]> = {};
+  let chosen: string | null = null;
+
+  const show = (step: 'pick' | 'form' | 'done') => {
+    root.querySelectorAll<HTMLElement>('[data-step]').forEach((el) => (el.hidden = el.dataset.step !== step));
+  };
+
+  const pill = 'snap-start shrink-0 rounded-2xl border px-4 py-2.5 text-left transition-colors cursor-pointer';
+  const off = 'border-snow/15 hover:border-marigold';
+  const on = 'border-marigold bg-marigold text-night';
+
+  function renderDays(active: string) {
+    daysEl.replaceChildren(...Object.keys(days).map((day) => {
+      const d = new Date(days[day][0]);
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('role', 'option');
+      b.setAttribute('aria-selected', String(day === active));
+      b.className = `${pill} ${day === active ? on : off}`;
+      b.innerHTML = `<span class="block text-xs uppercase tracking-wider opacity-70">${dayName.format(d)}</span><span class="block font-semibold">${dayNum.format(d)}</span>`;
+      b.onclick = () => { renderDays(day); renderSlots(day); };
+      return b;
+    }));
+  }
+
+  function renderSlots(day: string) {
+    slotsEl.replaceChildren(...days[day].map((iso) => {
+      const d = new Date(iso);
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('role', 'option');
+      b.className = `rounded-xl border border-snow/15 px-3 py-2.5 text-left hover:border-marigold hover:bg-snow/5 transition-colors cursor-pointer`;
+      b.innerHTML = `<span class="block font-semibold tabular-nums">${timeLocal.format(d)}</span>` +
+        (sameZone ? '' : `<span class="block text-xs text-snow/55 tabular-nums">${timeHome.format(d)} in Chennai</span>`);
+      b.onclick = () => choose(iso);
+      return b;
+    }));
+  }
+
+  function choose(iso: string) {
+    chosen = iso;
+    const d = new Date(iso);
+    $('[data-chosen]').textContent = full.format(d) + (sameZone ? '' : ` · ${timeHome.format(d)} in Chennai`);
+    errorEl.textContent = '';
+    show('form');
+    form.querySelector<HTMLInputElement>('input[name="name"]')!.focus();
+  }
+
+  $('[data-back]').onclick = () => show('pick');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    if (!data.name.trim()) return void (errorEl.textContent = 'Please add your name.');
+    if (!form.querySelector<HTMLInputElement>('input[name="email"]')!.checkValidity() || !data.email) {
+      return void (errorEl.textContent = 'That email doesn’t look right.');
+    }
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    button.disabled = true;
+    button.textContent = 'Booking…';
+    errorEl.textContent = '';
+    try {
+      const res = await fetch('/api/book', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ...data, start: chosen, timeZone: tz }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (body.error === 'slot_taken') {
+          errorEl.textContent = 'Someone just took that time. Pick another one?';
+          await load();
+        } else {
+          errorEl.textContent = 'Booking didn’t go through. Try again, or email me.';
+        }
+        return;
+      }
+      $('[data-done-text]').textContent =
+        `${full.format(new Date(chosen!))}. The calendar invite is on its way to ${data.email}.`;
+      if (body.meetingUrl) {
+        const a = $<HTMLAnchorElement>('[data-meeting]');
+        a.href = body.meetingUrl;
+        a.hidden = false;
+      }
+      show('done');
+      // Light up the network in the background.
+      window.dispatchEvent(new CustomEvent('neural:burst'));
+    } catch {
+      errorEl.textContent = 'Couldn’t reach the server. Try again, or email me.';
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Confirm the call';
+    }
+  });
+
+  async function load() {
+    try {
+      const res = await fetch(`/api/slots?timeZone=${encodeURIComponent(tz)}`);
+      if (!res.ok) throw new Error(String(res.status));
+      days = (await res.json()).days ?? {};
+    } catch {
+      // Not set up yet, or Cal.com is down: keep the widget out of sight.
+      root.hidden = true;
+      return;
+    }
+    root.hidden = false;
+    const first = Object.keys(days)[0];
+    if (!first) {
+      daysEl.replaceChildren();
+      slotsEl.replaceChildren();
+      status.textContent = 'No free times in the next few weeks. Email me and we’ll find one.';
+      return;
+    }
+    status.textContent = '';
+    renderDays(first);
+    renderSlots(first);
+    show('pick');
+  }
+
+  load();
+</script>

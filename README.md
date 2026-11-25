@@ -29,3 +29,20 @@ npm run preview   # serve the production build locally
    If the domain is registered on Cloudflare, the DNS records are added for you.
 4. **Analytics:** in the project, open **Metrics → Web Analytics → Enable**. Cloudflare injects the
    script itself, so there is nothing to add to the code. No cookies, so no consent banner needed.
+
+## "Book a call" (Cal.com)
+
+The contact panel has a 20-minute call picker drawn by the site. Cal.com does the calendar work
+(free/busy, invites, meeting link) behind two Cloudflare Pages Functions in `functions/api/`,
+so the API key never reaches the browser. Until it's configured, the picker stays hidden.
+
+1. Make a free account at cal.com, connect your calendar and a video app (Google Meet or Zoom).
+2. Create an event type: 20 minutes, slug `20min`, with your working hours.
+3. Settings → Security → create an API key.
+4. Cloudflare → this Pages project → **Settings → Variables and secrets**, for Production:
+   - `CAL_API_KEY` (type **Secret**): the key from step 3
+   - `CAL_USERNAME`: your Cal.com username
+   - `CAL_EVENT_SLUG`: only if the slug isn't `20min`
+5. Redeploy (Deployments → retry latest). The picker appears once `/api/slots` answers.
+
+Test locally with `npm run build && npx wrangler pages dev dist --binding CAL_API_KEY=... --binding CAL_USERNAME=...`.
