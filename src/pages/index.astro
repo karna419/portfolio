@@ -68,7 +68,6 @@ const jsonLd = {
       url: home,
       ...(site.role && { jobTitle: site.role }),
       description: site.summary || site.intro,
-      ...(site.email && { email: `mailto:${site.email}` }),
       ...(city && {
         homeLocation: { '@type': 'Place', address: { '@type': 'PostalAddress', addressLocality: city, ...(country && { addressCountry: country }) } },
       }),
