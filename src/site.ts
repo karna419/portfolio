@@ -52,5 +52,5 @@ export const site = {
   // Path in /public, e.g. '/karunagaran-cv.pdf'. Leave empty to hide.
   cv: '',
   // This site's source code, linked from the footer. Leave empty to hide the link.
-  source: 'https://github.com/karna419/portofolio',
+  source: 'https://github.com/karna419/portfolio',
 };
