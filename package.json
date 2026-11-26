@@ -3,6 +3,29 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
+  "description": "Portfolio site for an AI engineer and app developer, styled like a native iOS app. Astro, Tailwind CSS, Cloudflare Workers.",
+  "author": {
+    "name": "Karunagaran",
+    "url": "https://karunagaran.com"
+  },
+  "license": "MIT",
+  "homepage": "https://karunagaran.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/karna419/portfolio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/karna419/portfolio/issues"
+  },
+  "keywords": [
+    "portfolio",
+    "portfolio-template",
+    "astro",
+    "tailwindcss",
+    "cloudflare-workers",
+    "cal-com",
+    "glassmorphism"
+  ],
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
