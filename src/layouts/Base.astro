@@ -79,7 +79,13 @@ const year = new Date().getFullYear();
     </main>
     <!-- Extra room at the bottom on phones, where the tab bar floats. -->
     <footer class="mx-auto w-full max-w-6xl px-5 sm:px-8 pt-10 pb-28 sm:pb-10 text-sm text-muted">
-      © {year} {site.name}. Built with Astro.
+      © {year} {site.name}
+      {site.source && (
+        <>
+          <span aria-hidden="true" class="mx-1.5">·</span>
+          <a href={site.source} class="underline decoration-rule underline-offset-4 hover:text-ink hover:decoration-tint">Source on GitHub</a>
+        </>
+      )}
     </footer>
 
     <script>

@@ -51,4 +51,6 @@ export const site = {
   hire: ['Upwork', 'Fiverr'],
   // Path in /public, e.g. '/karunagaran-cv.pdf'. Leave empty to hide.
   cv: '',
+  // This site's source code, linked from the footer. Leave empty to hide the link.
+  source: 'https://github.com/karna419/portofolio',
 };

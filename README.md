@@ -18,12 +18,22 @@ No accounts or keys are needed to run it. The only optional extra is the "Book a
 
 Fork the repo, then replace my details with yours:
 
-1. `src/site.ts`: name, intro, email, links, about text, stack.
+1. `src/site.ts`: name, intro, email, links, about text, stack, and `source` (your fork's URL, or empty to hide the footer link).
 2. `src/content/work/`: delete my projects and add yours (one Markdown file each), with icons in `public/work/`.
 3. `src/data/reviews.ts`: your client reviews, or an empty list to hide the section.
 4. `astro.config.mjs`: your domain in `site`.
 5. `src/components/Booker.astro` and `Phone.astro`: they show Chennai time; change the home time zone there.
 6. To host it on Cloudflare, change `name` in `wrangler.jsonc` to your Worker's name (see Deploy below).
+
+## Licence
+
+The **code** is free to use under the [MIT licence](LICENSE): clone it, change it, use it for
+your own site or for client work. Keep the licence notice in your copy.
+
+The **content** is not covered by that licence and stays mine: my name, intro and about text,
+the case studies in `src/content/work/`, the client reviews in `src/data/reviews.ts`, and the
+images in `public/` (the app icons belong to the clients). When you fork, replace them with your
+own as described above.
 
 ## Edit your details
 
