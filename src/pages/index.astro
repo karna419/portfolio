@@ -36,8 +36,62 @@ for (let n = 0; n < tries; n++) {
 const reviewColumns: { r: (typeof reviews)[number]; i: number }[][] = Array.from({ length: COLUMNS }, () => []);
 top.forEach((r, i) => reviewColumns[i].push({ r, i }));
 rest.forEach((r, k) => reviewColumns[place[k]].push({ r, i: COLUMNS + k }));
+
+// Structured data for search engines and AI assistants: who this is, what they offer, where to
+// find them, and what they have built. Everything comes from site.ts and the work collection.
+const home = new URL('/', Astro.site).href;
+const personId = `${home}#person`;
+const [city, country] = site.location.split(',').map((s) => s.trim());
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${home}#website`,
+      url: home,
+      name: site.name,
+      description: site.intro,
+      publisher: { '@id': personId },
+    },
+    {
+      '@type': 'ProfilePage',
+      '@id': `${home}#profile`,
+      url: home,
+      name: site.role ? `${site.name} — ${site.role}` : site.name,
+      isPartOf: { '@id': `${home}#website` },
+      mainEntity: { '@id': personId },
+    },
+    {
+      '@type': 'Person',
+      '@id': personId,
+      name: site.name,
+      url: home,
+      ...(site.role && { jobTitle: site.role }),
+      description: site.summary || site.intro,
+      ...(site.email && { email: `mailto:${site.email}` }),
+      ...(city && {
+        homeLocation: { '@type': 'Place', address: { '@type': 'PostalAddress', addressLocality: city, ...(country && { addressCountry: country }) } },
+      }),
+      knowsAbout: site.expertise,
+      sameAs: site.links.map((l) => l.href),
+      makesOffer: site.services.map((s) => ({
+        '@type': 'Offer',
+        itemOffered: { '@type': 'Service', name: s.title, description: s.text, provider: { '@id': personId }, areaServed: 'Worldwide' },
+      })),
+      workExample: work.map((w) => ({
+        '@type': 'CreativeWork',
+        name: w.data.title,
+        description: w.data.summary,
+        url: new URL(`/work/${w.id}/`, Astro.site).href,
+        dateCreated: String(w.data.year),
+        ...(w.data.stack.length > 0 && { keywords: w.data.stack.join(', ') }),
+      })),
+    },
+  ],
+};
 ---
 <Base>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd).replace(/</g, "\\u003c")} />
   <section class="mx-auto max-w-6xl px-5 sm:px-8 pt-8 sm:pt-14 pb-12">
     <div class="grid items-center gap-x-12 gap-y-12 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
       <div>

@@ -35,6 +35,7 @@ const year = new Date().getFullYear();
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary" />
+    <slot name="head" />
   </head>
   <body class="min-h-dvh flex flex-col">
     <!-- The wallpaper stays put; everything else scrolls over it. -->

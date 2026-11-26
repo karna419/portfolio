@@ -18,7 +18,7 @@ No accounts or keys are needed to run it. The only optional extra is the "Book a
 
 Fork the repo, then replace my details with yours:
 
-1. `src/site.ts`: name, intro, email, links, about text, stack, and `source` (your fork's URL, or empty to hide the footer link).
+1. `src/site.ts`: name, intro, email, links, about text, stack, `summary` and `expertise` (how search engines and AI assistants describe you), and `source` (your fork's URL, or empty to hide the footer link).
 2. `src/content/work/`: delete my projects and add yours (one Markdown file each), with icons in `public/work/`.
 3. `src/data/reviews.ts`: your client reviews, or an empty list to hide the section.
 4. `astro.config.mjs`: your domain in `site`.

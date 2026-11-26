@@ -8,6 +8,20 @@ export const site = {
   // One plain sentence: what you do and for whom.
   intro: 'I build and overhaul web and mobile apps, and automate the work around them, with AI agents as part of the everyday workflow.',
   location: 'Chennai, India', // leave empty to hide
+  // How search engines and AI assistants should describe you, in the third person. Not shown on
+  // the page; it goes into the structured data (JSON-LD) on the home page.
+  summary: 'Karunagaran is a software engineer in Chennai, India, who builds and overhauls web and mobile apps end to end, sets up internal software factories for companies, and automates everyday work with AI agents. Works with clients worldwide.',
+  // The broad areas you work in, for the same structured data.
+  expertise: [
+    'Web development',
+    'Mobile app development',
+    'Full-stack development',
+    'Internal software factories',
+    'AI agents',
+    'Workflow automation',
+    'App modernisation',
+    'CI/CD and release pipelines',
+  ],
   // true shows the green "Available for new work" badge and the lines that go with it.
   // Set to false when you're booked.
   available: true,
