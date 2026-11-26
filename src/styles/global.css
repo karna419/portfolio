@@ -211,9 +211,9 @@
   /* An outlined button for the dark contact pane. */
   .btn-quiet { border: 1px solid rgb(245 246 250 / 0.25); background: rgb(245 246 250 / 0.08); color: var(--color-snow); transition: transform 460ms var(--spring-bounce), background-color 150ms ease, color 150ms ease; }
   .btn-quiet:hover { background: var(--color-snow); color: var(--color-night); }
-  /* When "Book a call" is on offer it is the main action, and Email me steps back. */
-  .actions:has([data-book-open]:not([hidden])) .email-btn { border: 1px solid rgb(245 246 250 / 0.25); background: rgb(245 246 250 / 0.08); color: var(--color-snow); box-shadow: none; filter: none; }
-  .actions:has([data-book-open]:not([hidden])) .email-btn:hover { background: var(--color-snow); color: var(--color-night); }
+  /* When "Book a call" is on offer it is the main action, and Email me (in the address box) steps back. */
+  #contact:has([data-book-open]:not([hidden])) .email-btn { border: 1px solid rgb(245 246 250 / 0.25); background: rgb(245 246 250 / 0.08); color: var(--color-snow); box-shadow: none; filter: none; }
+  #contact:has([data-book-open]:not([hidden])) .email-btn:hover { background: var(--color-snow); color: var(--color-night); }
 
   /* Underlined links: ink text, tinted underline that thickens on hover. */
   .link {
