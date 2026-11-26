@@ -40,11 +40,11 @@ export const reviews: Review[] = [
     source: 'Fiverr',
   },
   {
-    quote: 'Fantastic job. Great communication. 5 stars!!!',
-    who: 'App store release client',
+    quote: 'Wonderful. Seller is … very helpful. I will be using this seller again.',
+    who: 'mikehoogheem',
     country: 'United States',
     countryCode: 'US',
-    source: 'Upwork',
+    source: 'Fiverr',
   },
   {
     quote:
