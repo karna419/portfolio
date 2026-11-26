@@ -7,11 +7,22 @@ import Booker from '../components/Booker.astro';
 import Phone from '../components/Phone.astro';
 import Activity from '../components/Activity.astro';
 import { activity } from '../data/activity';
+import { reviews, ratings } from '../data/reviews';
 
 const work = await getWork();
 const hire = site.links.filter((l) => site.hire.includes(l.label));
 // Off unless switched on in site.ts. While its data is made up, it is for the dev server only.
 const showActivity = site.showActivity && (!activity.demo || import.meta.env.DEV);
+
+// Deal the reviews into three columns, each to the one with the least text so far.
+// The first three land one per column, so the top row keeps the list's first three.
+const reviewColumns: { r: (typeof reviews)[number]; i: number }[][] = [[], [], []];
+const columnLength = [0, 0, 0];
+reviews.forEach((r, i) => {
+  const c = columnLength.indexOf(Math.min(...columnLength));
+  reviewColumns[c].push({ r, i });
+  columnLength[c] += r.quote.length + 250; // + the stars, caption and padding, in characters' worth
+});
 ---
 <Base>
   <section class="mx-auto max-w-6xl px-5 sm:px-8 pt-8 sm:pt-14 pb-12">
@@ -94,6 +105,48 @@ const showActivity = site.showActivity && (!activity.demo || import.meta.env.DEV
           </li>
         ))}
       </ul>
+    </section>
+  )}
+
+  {reviews.length > 0 && (
+    <section id="reviews" class="mx-auto max-w-6xl px-5 sm:px-8 py-12 scroll-mt-20">
+      <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+        <h2 class="text-3xl sm:text-4xl font-bold">What clients say</h2>
+        <p class="flex flex-wrap gap-x-5 gap-y-1 text-muted">
+          {ratings.map((r) => {
+            const link = site.links.find((l) => l.label === r.source);
+            return (
+              <a href={link?.href} class="inline-flex items-center gap-1.5 hover:text-ink">
+                <Icon name={link?.icon ?? 'upwork'} class="size-4" />
+                <span><span class="text-ink font-semibold">{r.score}</span> ★ · {r.count} {r.count === 1 ? 'review' : 'reviews'} on {r.source}</span>
+              </a>
+            );
+          })}
+        </p>
+      </div>
+
+      <!-- On wide screens the cards stack in three columns, each card going to the shortest
+           column so long quotes don't leave gaps. Below that the columns dissolve
+           (display: contents) and `order` puts the cards back in list order. -->
+      <div class="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3 items-start">
+        {reviewColumns.map((col) => (
+          <ul class="contents lg:flex lg:flex-col lg:gap-5">
+            {col.map(({ r, i }) => (
+              <li class="glass pane p-6 sm:p-7" style={`order: ${i}`}>
+                <figure>
+                  <div class="text-tint tracking-[0.15em]" role="img" aria-label="5 out of 5 stars">★★★★★</div>
+                  <blockquote class="mt-3 text-[1.05rem] leading-relaxed">“{r.quote}”</blockquote>
+                  <figcaption class="mt-5 text-sm text-muted">
+                    <span class="font-medium text-ink">{r.who}</span>
+                    {r.country && <span> · {r.country}</span>}
+                    <span> · via {r.source}</span>
+                  </figcaption>
+                </figure>
+              </li>
+            ))}
+          </ul>
+        ))}
+      </div>
     </section>
   )}
 
