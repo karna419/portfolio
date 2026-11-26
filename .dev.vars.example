@@ -1,0 +1,7 @@
+# Copy to .dev.vars (git ignores it) to try the "Book a call" picker with `npx wrangler dev`.
+# Leave this alone and the site still works: the booking button just stays hidden.
+# On Cloudflare, set the same names under the Worker's Settings -> Variables and Secrets
+# (CAL_API_KEY as type Secret).
+CAL_API_KEY=
+CAL_USERNAME=
+# CAL_EVENT_SLUG=15min

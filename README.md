@@ -11,6 +11,20 @@ npm run build     # production build into dist/ — drafts are left out
 npm run preview   # serve the production build locally
 ```
 
+No accounts or keys are needed to run it. The only optional extra is the "Book a call" picker
+(below); without it, the button simply stays hidden.
+
+## Make it your own
+
+Fork the repo, then replace my details with yours:
+
+1. `src/site.ts`: name, intro, email, links, about text, stack.
+2. `src/content/work/`: delete my projects and add yours (one Markdown file each), with icons in `public/work/`.
+3. `src/data/reviews.ts`: your client reviews, or an empty list to hide the section.
+4. `astro.config.mjs`: your domain in `site`.
+5. `src/components/Booker.astro` and `Phone.astro`: they show Chennai time; change the home time zone there.
+6. To host it on Cloudflare, change `name` in `wrangler.jsonc` to your Worker's name (see Deploy below).
+
 ## Edit your details
 
 - **Name, intro, email, links, CV:** `src/site.ts`
@@ -50,4 +64,5 @@ so the API key never reaches the browser. Until it's configured, the picker stay
    - `CAL_EVENT_SLUG`: only if the slug isn't `15min`
    Saving them redeploys the Worker; the picker appears once `/api/slots` answers.
 
-Test locally with `npm run build && npx wrangler dev --var CAL_API_KEY:... --var CAL_USERNAME:...`.
+To test locally, copy `.dev.vars.example` to `.dev.vars`, fill it in, then run
+`npm run build && npx wrangler dev`. Git ignores `.dev.vars`; never put the key anywhere else in the repo.

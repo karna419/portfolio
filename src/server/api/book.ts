@@ -8,6 +8,12 @@ export async function onRequestPost({ request, env }: Context) {
   const cal = config(env);
   if (!cal) return json({ error: 'not_configured' }, 503);
 
+  // Only this site's own pages may book. Browsers always send Origin on a POST, so this stops
+  // other websites from submitting bookings through a visitor's browser. (A script can fake the
+  // header, so it is not bot protection on its own.)
+  const origin = request.headers.get('origin');
+  if (!origin || origin !== new URL(request.url).origin) return json({ error: 'forbidden' }, 403);
+
   let input: Record<string, unknown>;
   try {
     input = await request.json();
