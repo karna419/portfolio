@@ -191,7 +191,8 @@ rest.forEach((r, k) => reviewColumns[place[k]].push({ r, i: COLUMNS + k }));
   </section>
 
   <section id="contact" class="mx-auto max-w-6xl px-5 sm:px-8 py-12 scroll-mt-20">
-    <div class="glass glass-dark rounded-[2.25rem] text-snow px-6 sm:px-12 py-12 sm:py-16">
+    <div class="glass glass-dark rounded-[2.25rem] text-snow px-6 sm:px-12 py-12 sm:py-16 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12">
+      <div>
       <h2 class="text-3xl sm:text-5xl font-bold max-w-[18ch]">Have something you want built?</h2>
       <p class="mt-4 max-w-[55ch] text-snow/75">{site.available && "I'm free to start now. "}Tell me what you're working on. I usually reply within a couple of days.</p>
       <div class="actions mt-8 flex flex-wrap gap-3">
@@ -210,13 +211,39 @@ rest.forEach((r, k) => reviewColumns[place[k]].push({ r, i: COLUMNS + k }));
           </a>
         ))}
       </div>
-      {site.email && <p class="mt-5 text-sm text-snow/60">{site.email}</p>}
+      </div>
+      {/* The address in full, with a copy button for visitors who have no mail app set up. */}
+      {site.email && (
+        <div class="mt-10 lg:mt-0 rounded-3xl border border-snow/15 bg-snow/5 p-5 sm:p-7 lg:min-w-[22rem]">
+          <p class="text-sm text-snow/60">Or write to me directly</p>
+          <a href={`mailto:${site.email}`} class="mt-2 block text-lg sm:text-2xl font-semibold hover:text-tint transition-colors">{site.email.split('@')[0]}@<wbr />{site.email.split('@')[1]}</a>
+          <button type="button" data-copy-email={site.email} class="btn btn-quiet mt-5 cursor-pointer">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5" /><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5" /></svg>
+            <span data-copy-label aria-live="polite">Copy address</span>
+          </button>
+        </div>
+      )}
     </div>
     <Booker />
   </section>
 </Base>
 
 <script>
+  // Copy the email address, and say so on the button for a moment.
+  const copyBtn = document.querySelector<HTMLButtonElement>('[data-copy-email]');
+  const copyLabel = copyBtn?.querySelector<HTMLElement>('[data-copy-label]');
+  let copyTimer: number | undefined;
+  copyBtn?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(copyBtn.dataset.copyEmail!);
+      copyLabel!.textContent = 'Copied';
+    } catch {
+      copyLabel!.textContent = 'Couldn’t copy';
+    }
+    clearTimeout(copyTimer);
+    copyTimer = window.setTimeout(() => (copyLabel!.textContent = 'Copy address'), 2000);
+  });
+
   // The glow inside the name follows the pointer (see .name-sheen in global.css).
   const name = document.querySelector<HTMLElement>('.name-sheen');
   if (name && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
