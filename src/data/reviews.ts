@@ -40,6 +40,13 @@ export const reviews: Review[] = [
     source: 'Fiverr',
   },
   {
+    quote: 'Fantastic job. Great communication. 5 stars!!!',
+    who: 'App store release client',
+    country: 'United States',
+    countryCode: 'US',
+    source: 'Upwork',
+  },
+  {
     quote:
       'karna is very understanding, patient and very knowledgeable. He has been working on so many parts of my project, he is like part of my work team. definitely recommend to anyone',
     who: 'mashariki01',
@@ -54,11 +61,6 @@ export const reviews: Review[] = [
     country: 'India',
     countryCode: 'IN',
     source: 'Fiverr',
-  },
-  {
-    quote: 'Fantastic job. Great communication. 5 stars!!!',
-    who: 'App store release client',
-    source: 'Upwork',
   },
 ];
 

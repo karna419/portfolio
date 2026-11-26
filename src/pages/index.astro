@@ -15,15 +15,27 @@ const hire = site.links.filter((l) => site.hire.includes(l.label));
 // Off unless switched on in site.ts. While its data is made up, it is for the dev server only.
 const showActivity = site.showActivity && (!activity.demo || import.meta.env.DEV);
 
-// Deal the reviews into three columns, each to the one with the least text so far.
-// The first three land one per column, so the top row keeps the list's first three.
-const reviewColumns: { r: (typeof reviews)[number]; i: number }[][] = [[], [], []];
-const columnLength = [0, 0, 0];
-reviews.forEach((r, i) => {
-  const c = columnLength.indexOf(Math.min(...columnLength));
-  reviewColumns[c].push({ r, i });
-  columnLength[c] += r.quote.length + 250; // + the stars, caption and padding, in characters' worth
-});
+// Deal the reviews into three columns for wide screens. The first three go one per column, so
+// the top row is the list's first three. The rest go wherever makes the columns end most evenly:
+// every way of placing them is tried (fine for a handful of reviews), keeping list order within
+// each column. A card's height is estimated from its quote length.
+const COLUMNS = 3;
+const cardSize = (r: (typeof reviews)[number]) => r.quote.length + 250; // + stars, caption, padding
+const top = reviews.slice(0, COLUMNS);
+const rest = reviews.slice(COLUMNS);
+let place: number[] = rest.map((_, k) => k % COLUMNS);
+let bestScore = Infinity;
+const tries = rest.length <= 8 ? COLUMNS ** rest.length : 0; // beyond that, keep round-robin
+for (let n = 0; n < tries; n++) {
+  const pick = rest.map((_, k) => Math.floor(n / COLUMNS ** k) % COLUMNS);
+  const heights = top.map(cardSize);
+  rest.forEach((r, k) => (heights[pick[k]] += cardSize(r)));
+  const score = Math.max(...heights) * 10 + (Math.max(...heights) - Math.min(...heights));
+  if (score < bestScore) [bestScore, place] = [score, pick];
+}
+const reviewColumns: { r: (typeof reviews)[number]; i: number }[][] = Array.from({ length: COLUMNS }, () => []);
+top.forEach((r, i) => reviewColumns[i].push({ r, i }));
+rest.forEach((r, k) => reviewColumns[place[k]].push({ r, i: COLUMNS + k }));
 ---
 <Base>
   <section class="mx-auto max-w-6xl px-5 sm:px-8 pt-8 sm:pt-14 pb-12">
