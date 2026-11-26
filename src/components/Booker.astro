@@ -57,6 +57,8 @@ import { site } from '../site';
       </label>
       <!-- Honeypot: hidden from people, irresistible to bots. -->
       <input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute -left-[9999px] h-0 w-0 opacity-0" />
+      <!-- Cloudflare Turnstile, when it's set up. It stays invisible unless it needs a click. -->
+      <div data-turnstile></div>
       <div class="flex flex-wrap items-center gap-4">
         <button type="submit" class="btn btn-tint disabled:opacity-60 cursor-pointer">Confirm the call</button>
         <p data-error class="text-sm text-tint" role="alert"></p>
@@ -261,6 +263,52 @@ import { site } from '../site';
   let loadedAt = 0;
   let booked = false;
 
+  // Cloudflare Turnstile: on only when /api/slots hands over a site key. Its script loads
+  // the first time the sheet opens, and its token goes with the booking.
+  interface Turnstile {
+    render(el: HTMLElement, opts: Record<string, unknown>): string;
+    reset(id: string): void;
+  }
+  let siteKey: string | null = null;
+  let turnstileScript: Promise<Turnstile> | null = null;
+  let widget: string | null = null;
+  let token = '';
+
+  function loadTurnstile() {
+    turnstileScript ??= new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      s.onload = () => resolve((window as unknown as { turnstile: Turnstile }).turnstile);
+      s.onerror = () => { turnstileScript = null; reject(); };
+      document.head.append(s);
+    });
+    return turnstileScript;
+  }
+
+  async function showTurnstile() {
+    if (!siteKey || widget) return;
+    try {
+      const ts = await loadTurnstile();
+      widget ??= ts.render($('[data-turnstile]'), {
+        sitekey: siteKey,
+        action: 'book',
+        theme: 'dark',
+        appearance: 'interaction-only',
+        callback: (t: string) => { token = t; },
+        'expired-callback': () => { token = ''; },
+        'error-callback': () => { token = ''; },
+      });
+    } catch {
+      // Blocked or offline: the booking will say it couldn't confirm, with email as the way out.
+    }
+  }
+
+  /** Tokens work once, so get a fresh one after each try. */
+  function resetTurnstile() {
+    token = '';
+    if (widget) turnstileScript?.then((ts) => ts.reset(widget!));
+  }
+
   const show = (step: 'pick' | 'form' | 'done') => {
     sheet.querySelectorAll<HTMLElement>('[data-step]').forEach((el) => (el.hidden = el.dataset.step !== step));
   };
@@ -303,6 +351,7 @@ import { site } from '../site';
     $('[data-chosen]').textContent = full.format(d) + (sameZone ? '' : ` · ${timeHome.format(d)} in ${HOME_NAME}`);
     errorEl.textContent = '';
     show('form');
+    showTurnstile();
     form.querySelector<HTMLInputElement>('input[name="name"]')!.focus();
   }
 
@@ -315,6 +364,10 @@ import { site } from '../site';
     if (!form.querySelector<HTMLInputElement>('input[name="email"]')!.checkValidity() || !data.email) {
       return void (errorEl.textContent = 'That email doesn’t look right.');
     }
+    if (siteKey && !token) {
+      showTurnstile();
+      return void (errorEl.textContent = 'Checking you’re not a bot. Try again in a moment.');
+    }
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
     button.disabled = true;
     button.textContent = 'Booking…';
@@ -323,13 +376,18 @@ import { site } from '../site';
       const res = await fetch('/api/book', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...data, start: chosen, timeZone: tz }),
+        body: JSON.stringify({ ...data, start: chosen, timeZone: tz, ...(token ? { turnstile: token } : {}) }),
       });
+      resetTurnstile();
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
         if (body.error === 'slot_taken') {
           errorEl.textContent = 'Someone just took that time. Pick another one?';
           await load();
+        } else if (body.error === 'rate_limited') {
+          errorEl.textContent = 'That’s a lot of tries. Wait a minute, then try again.';
+        } else if (body.error === 'verification') {
+          errorEl.textContent = 'Couldn’t confirm you’re not a bot. Try again, or email me.';
         } else {
           errorEl.textContent = 'Booking didn’t go through. Try again, or email me.';
         }
@@ -361,7 +419,9 @@ import { site } from '../site';
     try {
       const res = await fetch(`/api/slots?timeZone=${encodeURIComponent(zone)}`);
       if (!res.ok) throw new Error(String(res.status));
-      fresh = (await res.json()).days ?? {};
+      const out = await res.json();
+      fresh = out.days ?? {};
+      siteKey = typeof out.turnstile === 'string' ? out.turnstile : null;
     } catch {
       return false;
     }
@@ -386,6 +446,8 @@ import { site } from '../site';
     if (sheet.open) return;
     if (!booked) show('pick');
     sheet.showModal();
+    // Fetch the Turnstile script now, so it's ready by the time a time is picked.
+    if (siteKey) loadTurnstile().catch(() => {});
     // Free times go stale: refresh them if the page has been open a while.
     if (!booked && Date.now() - loadedAt > 60_000) load();
   }

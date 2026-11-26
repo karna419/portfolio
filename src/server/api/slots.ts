@@ -1,10 +1,16 @@
 // GET /api/slots?timeZone=Europe/Berlin
 // Free 15-minute slots for the next few weeks, grouped by day in the time zone the visitor chose.
 import { config, isTimeZone, json, WINDOW_DAYS, type Context } from '../cal';
+import { allowed, clientIp, turnstileSiteKey } from '../guard';
 
 export async function onRequestGet({ request, env }: Context) {
   const cal = config(env);
   if (!cal) return json({ error: 'not_configured' }, 503);
+
+  // Each call spends the Cal.com key's quota, so scripts can't hammer it.
+  if (!(await allowed(env.SLOTS_LIMITER, `ip:${clientIp(request)}`))) {
+    return json({ error: 'rate_limited' }, 429, { 'retry-after': '60' });
+  }
 
   const url = new URL(request.url);
   const tz = url.searchParams.get('timeZone') || 'UTC';
@@ -37,5 +43,6 @@ export async function onRequestGet({ request, env }: Context) {
   }
 
   // Short cache: fresh enough that taken slots disappear quickly.
-  return json({ days }, 200, { 'cache-control': 'public, max-age=60' });
+  // The Turnstile site key is public; the page needs it to draw the check. Null when it's off.
+  return json({ days, turnstile: turnstileSiteKey(env) }, 200, { 'cache-control': 'public, max-age=60' });
 }

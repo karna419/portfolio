@@ -1,6 +1,7 @@
-// POST /api/book  { start, name, email, notes?, timeZone, website? }
+// POST /api/book  { start, name, email, notes?, timeZone, website?, turnstile? }
 // Books the 15-minute call. Cal.com sends both sides the calendar invite and meeting link.
 import { config, isTimeZone, json, WINDOW_DAYS, type Context } from '../cal';
+import { allowed, clientIp, humanVerified } from '../guard';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -13,6 +14,11 @@ export async function onRequestPost({ request, env }: Context) {
   // header, so it is not bot protection on its own.)
   const origin = request.headers.get('origin');
   if (!origin || origin !== new URL(request.url).origin) return json({ error: 'forbidden' }, 403);
+
+  // A few tries per visitor per minute is plenty for a person.
+  if (!(await allowed(env.BOOK_LIMITER, `ip:${clientIp(request)}`))) {
+    return json({ error: 'rate_limited' }, 429, { 'retry-after': '60' });
+  }
 
   let input: Record<string, unknown>;
   try {
@@ -39,6 +45,14 @@ export async function onRequestPost({ request, env }: Context) {
   if (isNaN(start.getTime()) || start.getTime() < now || start.getTime() > now + (WINDOW_DAYS + 1) * 86_400_000) {
     return json({ error: 'start' }, 400);
   }
+
+  // The same address can't be sent invite after invite, even from many IPs.
+  if (!(await allowed(env.BOOK_LIMITER, `email:${email.toLowerCase()}`))) {
+    return json({ error: 'rate_limited' }, 429, { 'retry-after': '60' });
+  }
+
+  // Last, because it calls Cloudflare: a real browser solved the Turnstile check.
+  if (!(await humanVerified(env, request, str('turnstile')))) return json({ error: 'verification' }, 403);
 
   const res = await fetch(`${cal.base}/v2/bookings`, {
     method: 'POST',

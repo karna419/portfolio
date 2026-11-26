@@ -5,3 +5,8 @@
 CAL_API_KEY=
 CAL_USERNAME=
 # CAL_EVENT_SLUG=15min
+# Optional: Cloudflare Turnstile. On only when both are set (TURNSTILE_SECRET_KEY as type Secret).
+# For local testing, use the test keys listed at
+# https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+# TURNSTILE_SITE_KEY=
+# TURNSTILE_SECRET_KEY=

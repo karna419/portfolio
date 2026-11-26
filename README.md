@@ -76,3 +76,20 @@ so the API key never reaches the browser. Until it's configured, the picker stay
 
 To test locally, copy `.dev.vars.example` to `.dev.vars`, fill it in, then run
 `npm run build && npx wrangler dev`. Git ignores `.dev.vars`; never put the key anywhere else in the repo.
+
+### Keeping bots out
+
+The booking API sends invites from your Cal.com account, so it is guarded against scripts:
+
+- **Rate limits** (always on, nothing to set up): a few bookings per visitor IP and per email
+  address each minute, and 30 slot lookups. They're the `ratelimits` in `wrangler.jsonc`.
+- **Cloudflare Turnstile** (optional, free): a check that a real browser is booking, usually with
+  nothing to click. To turn it on:
+  1. Cloudflare → **Turnstile → Add widget**: add your domain, mode **Managed**.
+  2. In the Worker's **Variables and Secrets**, add `TURNSTILE_SITE_KEY` (the site key) and
+     `TURNSTILE_SECRET_KEY` (type **Secret**).
+  It runs only when both are set. To test it locally, use the test keys from
+  [Cloudflare's docs](https://developers.cloudflare.com/turnstile/troubleshooting/testing/) in `.dev.vars`.
+
+Also worth turning on in Cal.com: the event type's **Requires confirmation**, so you approve each
+booking before it lands in your calendar.

@@ -1,5 +1,6 @@
 // Shared by the Worker API routes in src/server/api. Runs on the server only:
 // the Cal.com API key never reaches the browser.
+import type { RateLimit } from './guard';
 
 export interface Env {
   /** Cal.com API key (Settings → Security). Set as a Secret on the Worker in Cloudflare. */
@@ -10,6 +11,13 @@ export interface Env {
   CAL_EVENT_SLUG?: string;
   /** Only for local testing against a mock server. */
   CAL_API_BASE?: string;
+  /** Cloudflare Turnstile public site key. Turnstile is on only when both keys are set. */
+  TURNSTILE_SITE_KEY?: string;
+  /** Cloudflare Turnstile secret key. Set as a Secret on the Worker in Cloudflare. */
+  TURNSTILE_SECRET_KEY?: string;
+  /** Rate limiters from `ratelimits` in wrangler.jsonc. */
+  BOOK_LIMITER?: RateLimit;
+  SLOTS_LIMITER?: RateLimit;
 }
 
 /** What each API route receives from src/worker.ts. */
